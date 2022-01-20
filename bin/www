@@ -1,0 +1,134 @@
+#!/usr/bin/env node
+var FolderPath = '../';
+var fs = require('fs');
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('eloqua-api:server');
+var http = require('http');
+
+console.log(__dirname);
+
+switch(__dirname)
+{
+  case "/home/opc/LGE/bscard/bin" : port = normalizePort(process.env.PORT || '9001'); break;
+  case "/home/opc/LGE/iam/bin" : port = normalizePort(process.env.PORT || '9002'); break;
+  case "/home/opc/LGE/b2bgerp_global/bin" : port = normalizePort(process.env.PORT || '9003'); break;
+  case "/home/opc/LGE/b2bgerp_kr/bin" : port = normalizePort(process.env.PORT || '9004'); break;
+  case "/home/opc/LGE/cs_integration/bin" : port = normalizePort(process.env.PORT || '9005'); break;
+  case "/home/opc/LGE/integrated_pipeline/bin" : port = normalizePort(process.env.PORT || '9006'); break;
+  default :  port = normalizePort(process.env.PORT || '8001'); break;
+}
+/**
+ * Get port from environment and store in Express.
+ */
+
+ 
+// 회사명 : LGElectronics
+// 명함앱 : Lg_api.Card - 8001
+// B2B GERP : Lg_api.B2b_global - 8002
+// B2B KR : Lg_api.B2b_kr- 8003
+// 고객통합 : Lg_api.Integrated- 8004
+// IAM : Lg_api.Iam- 8005
+// 전부 비밀번호 :  QWer1234!@
+
+// var port = normalizePort(process.env.PORT || '8001');
+
+// fs.readdir(FolderPath, function(error, filelist){
+
+//   console.log(filelist);
+
+//   if (filelist != null && filelist.length > 0) {
+//     for(i=0; i<filelist.length; i++)
+//     {
+//       switch(filelist[i])
+//       {
+//         case "bscard": port = normalizePort(process.env.PORT || '9001'); break;
+//         case "iam": port = normalizePort(process.env.PORT || '9002'); break;
+//         case "b2bgerp_global": port = normalizePort(process.env.PORT || '9003'); break;
+//         case "b2bgerp_kr": port = normalizePort(process.env.PORT || '9004'); break;
+//         case "cs_intergration": port = normalizePort(process.env.PORT || '9005'); break;
+//       }
+//     }
+//   }
+// })
+console.log("port : " + port);
+
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

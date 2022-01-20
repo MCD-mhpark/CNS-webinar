@@ -1,0 +1,78 @@
+{
+  "_from": "eloqua-rest-api@^1.0.18",
+  "_id": "eloqua-rest-api@1.0.18",
+  "_inBundle": false,
+  "_integrity": "sha512-jAHySSUHerf2XMS07NgjaDJYcUxfZ60EutAD0hsmgAYOJHaH5R8IKvmNXkCqbDVdewA4IpheRpCgvimqCkxF2A==",
+  "_location": "/eloqua-rest-api",
+  "_phantomChildren": {
+    "ms": "2.0.0"
+  },
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "eloqua-rest-api@^1.0.18",
+    "name": "eloqua-rest-api",
+    "escapedName": "eloqua-rest-api",
+    "rawSpec": "^1.0.18",
+    "saveSpec": null,
+    "fetchSpec": "^1.0.18"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/eloqua-rest-api/-/eloqua-rest-api-1.0.18.tgz",
+  "_shasum": "f335f1ba7551cfc3f6e7194e9f159852a430053f",
+  "_spec": "eloqua-rest-api@^1.0.18",
+  "_where": "D:\\Project\\2020\\09\\LG 전자\\code\\LG-Eloqua-APIService",
+  "author": {
+    "name": "Mehrdad Youssefi",
+    "url": "themehrdad@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/themehrdad/eloqua-rest-api/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "axios": "^0.19.0"
+  },
+  "deprecated": false,
+  "description": "A REST API client for Oracle Eloqua",
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.16",
+    "jest": "^24.9.0",
+    "jest-extended": "^0.11.2",
+    "shelljs": "^0.8.3",
+    "ts-jest": "^24.2.0",
+    "typescript": "^3.7.3"
+  },
+  "files": [
+    "lib",
+    "dist",
+    "READE.md",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "homepage": "https://github.com/themehrdad/eloqua-rest-api#readme",
+  "keywords": [
+    "eloqua",
+    "rest api"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "name": "eloqua-rest-api",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/themehrdad/eloqua-rest-api.git"
+  },
+  "scripts": {
+    "build": "shx rm -rf ./dist && tsc",
+    "e2e-test": "yarn jest --rootDir='lib/e2e-tests'",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn test",
+    "test": "yarn jest --testPathIgnorePatterns='e2e-tests/'"
+  },
+  "types": "./dist/index.d.ts",
+  "version": "1.0.18"
+}

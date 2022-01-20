@@ -1,0 +1,157 @@
+{
+  "_args": [
+    [
+      "eloqua-sdk@1.2.1",
+      "D:\\Project\\2020\\09\\LG 전자\\code\\LG-Eloqua-APIService"
+    ]
+  ],
+  "_from": "eloqua-sdk@1.2.1",
+  "_id": "eloqua-sdk@1.2.1",
+  "_inBundle": false,
+  "_integrity": "sha512-SIbIZLZwigx//lQzK46XHz5yc8rKkBwBZQhoWh4LRCZocLiUSusM4ux8F+ooej3afYZxq8BEvJYGUYhaqTuWxw==",
+  "_location": "/eloqua-sdk",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "eloqua-sdk@1.2.1",
+    "name": "eloqua-sdk",
+    "escapedName": "eloqua-sdk",
+    "rawSpec": "1.2.1",
+    "saveSpec": null,
+    "fetchSpec": "1.2.1"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/eloqua-sdk/-/eloqua-sdk-1.2.1.tgz",
+  "_spec": "1.2.1",
+  "_where": "D:\\Project\\2020\\09\\LG 전자\\code\\LG-Eloqua-APIService",
+  "author": {
+    "name": "Jeff Baldwin",
+    "email": "jeffbaldwinjr@gmail.com"
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          },
+          "exclude": [
+            "transform-regenerator"
+          ]
+        }
+      ]
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ],
+      "@babel/plugin-proposal-throw-expressions",
+      "add-module-exports",
+      "@babel/plugin-proposal-export-default-from"
+    ],
+    "env": {
+      "development": {
+        "sourceMaps": "inline"
+      },
+      "test": {
+        "plugins": [
+          "istanbul"
+        ]
+      }
+    },
+    "comments": false
+  },
+  "bugs": {
+    "url": "https://github.com/jeffbaldwinjr/node-eloqua-sdk/issues"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "debug": "^4.1.1",
+    "deepmerge": "^3.0.0"
+  },
+  "description": "SDK to interact with Oracle Eloqua API",
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.2.3",
+    "@babel/plugin-proposal-export-default-from": "^7.2.0",
+    "@babel/plugin-proposal-throw-expressions": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-plugin-istanbul": "^5.1.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.2.3",
+    "codecov": "^3.1.0",
+    "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
+    "del": "^3.0.0",
+    "eslint-config-google": "^0.11.0",
+    "eslint-plugin-mocha": "^5.2.0",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-codecov": "^3.0.5",
+    "gulp-coveralls": "github:jeffbaldwinjr/gulp-coveralls",
+    "gulp-eslint": "^5.0.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.1",
+    "jsdoc": "^3.5.5",
+    "minami": "^1.2.3",
+    "mocha": "^4.1.0",
+    "must": "^0.13.4",
+    "nock": "^10.0.4",
+    "nyc": "^13.1.0",
+    "release-it": "^10.0.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "engine": {
+    "node": ">=7.6"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "homepage": "https://github.com/jeffbaldwinjr/node-eloqua-sdk#readme",
+  "keywords": [
+    "eloqua",
+    "oracle",
+    "api",
+    "bulk",
+    "rest"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "main": "dist/Eloqua.js",
+  "name": "eloqua-sdk",
+  "nyc": {
+    "require": [
+      "@babel/register"
+    ],
+    "sourceMap": false,
+    "instrument": false,
+    "reporter": "lcov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeffbaldwinjr/node-eloqua-sdk.git"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "clean": "gulp clean",
+    "coverage": "gulp coverage",
+    "lint": "gulp lint",
+    "make-docs": "jsdoc -c .jsdoc.json --verbose",
+    "release": "./release.sh",
+    "test": "mocha --opts ./mocha.opts test/index.js",
+    "test-coverage": "cross-env NODE_ENV=test nyc mocha --opts ./mocha.opts test/index.js",
+    "test-verbose": "cross-env DEBUG=eloqua* npm test"
+  },
+  "version": "1.2.1"
+}
