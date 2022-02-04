@@ -14,7 +14,7 @@ require('console-stamp')(console, {
 });
 var os = require('os');
 
-const schedule = require('node-schedule-tz');
+// const schedule = require('node-schedule-tz');
 
 var FolderPath = '../';
 var fs = require('fs');
@@ -29,35 +29,21 @@ var cns_eloqua_config = {
 
 global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
-// Data/contacts 만 쓰는 project
+
 var cns_assets = require('./routes/assets');
-// var b2bgerp_global_data_contacts = require('./routes/b2bgerp_global/Data/contacts');
-// var b2bgerp_kr_us_data_contacts = require('./routes/b2bgerp_kr_us/Data/contacts');
-// var cs_integration_data_contacts = require('./routes/cs_integration/Data/contacts');
-// var cs_integration_data_activities = require('./routes/cs_integration/Data/activities');
-// var cs_integration_Assets_campaign = require('./routes/cs_integration/Assets/campaigns');
-// var integrated_pipeline_data_contacts = require('./routes/integrated_pipeline/Data/Contact');
-
-// bulk 혹은 system user 를 사용하는 project
-// var bscard_app_bulk_contacts= require('./routes/bscard_app/Bulk/contacts/imports');
-// var bscard_app_bulk_syncAction= require('./routes/bscard_app/Bulk/contacts/syncAction');
-// var bscard_app_data_contacts = require('./routes/bscard_app/Data/contacts');
-
-// var etc_function = require('./routes/common/etc_function');
-
-// var iam_system_users = require('./routes/iam/system/users');
+var cns_webinar_preregist = require('./routes/webinar/preregist');
 
 
-const dbconfig = require('./config/dbconfig.js');
+// const dbconfig = require('./config/dbconfig');
 const { url } = require('inspector');
 
 var app = express();
 
 var module_files = path.join(process.cwd(), '../modules');
-
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/modules', express.static(module_files));
+
 app.use(bodyParser.json({limit: '50mb'})); //body 의 크기 설정
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true})); //url의 크기 설정
  
@@ -70,6 +56,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use('/index', index);
 // app.use('/log', log);
 app.use('/assets', cns_assets);
+app.use('/webinar/pre', cns_webinar_preregist);
 
 
 // catch 404 and forward to error handler
