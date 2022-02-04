@@ -22,6 +22,7 @@ switch(__dirname)
   // case "/home/opc/LGE/integrated_pipeline/bin" : port = normalizePort(process.env.PORT || '9006'); break;
   default :  port = normalizePort(process.env.PORT || '8001'); break;
 }
+
 /**
  * Get port from environment and store in Express.
  */
@@ -42,7 +43,7 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
-
+ 
 /**
  * Normalize a port into a number, string, or false.
  */

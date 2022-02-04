@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment-timezone');
 var request = require('request');
 var request_promise = require('request-promise');
 var moment = require('moment');
@@ -9,57 +10,53 @@ const { route } = require('../assets');
 /**
  *  로그인 API
  *  
- *  - body
- *      1. webinar: 웨비나의 대상 CDOid (GP전달) 
- *      2. hphone: 핸드폰번호
- *      3. regGBN: 웨비나 - webinar / 온디멘드 - ondemand
+ *  * body sample
+ *    {
+ *      "webinarName": "A", 
+ *      "hphone":"01011112222"
+ *    }
  */
-router.get('/login', function (req, res, next) {
+router.post('/login', async function (req, res, next) {
 
-    
     //1. CDO 검색 ======== start
-    var parentId = req.body.webinar;
-    //TODO: 1:1대응 등으로 수정된다면 검색 로직이 바뀜 => searchString이 바뀌어야함
-    // var searchString = '?uniqueCode=' + req.body.hphone + '';
-    var searchString = '?Mobile_Phone1=' + req.body.hphone + '';
+    const parentId = 80;
+    var searchString = "?______12='" + req.body.webinarName + "'___1='" + req.body.hphone + "'";
     var queryString = {
         'search' : searchString, 
         'depth' : 'complete'
     }
     
-    cns_eloqua.data.customObjectData.get(parentId, queryString).then((result) => {
+    cns_eloqua.data.customObjectData.get(parentId, queryString).then(async (result) => {
         console.log(result.data);
 
         var resultForm = {};
-        var loginData = result.data.elements[0];
         
         if (result.data.total > 0) {
 
-            //2. 로그인 성공시 해당 CDO의 webinar / ondemand 필드를 업데이트
-            if (loginData.regGBN == 'webinar') {
-                loginData.fieldValues.push({
-                    "type":"FieldValue",
-                    "id":"0",   //FIXME: webinar field id
-                    "value":"Y"
-                });
-            } 
-            if (loginData.regGBN == 'ondemand') {
-                loginData.fieldValues.push({
-                    "type":"FieldValue",
-                    "id":"0",   //FIXME: ondemand field id
-                    "value":"Y"
-                });
-            }
+            var loginData = result.data.elements[0];
 
-            cns_eloqua.data.customObjectData.update(parentId, loginData.id, loginData).then((result) => {
-                
-                resultForm.uid = result.data.elements[0].uniqueCode;
+            //2. 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== start
+            var loginUpdateData = loginData;
+            var loginUpdateDataFields = [
+                { type: 'FieldValue', id: '822', value: 'Y' },     // 참석여부 : Y/N (default:N)
+                { type: 'FieldValue', id: '807', value: moment().tz('Asia/Seoul').unix() }     // 로그인시간
+            ];
+            loginUpdateData.fieldValues = loginUpdateDataFields;
+
+            await cns_eloqua.data.customObjectData.update(parentId, loginData.id, loginUpdateData).then((result) => {
+
+                resultForm.uid = loginData.uniqueCode;
                 resultForm.status = '1';
 
             }).catch((err) => {
-                resultForm.status = '0';
+
+                console.log(err.message);
+
+                //TODO: 갱신 실패에 대한 에러코드 협의
+                resultForm.status = '-1';
             })
 
+            //2. 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== end
         } else {
             resultForm.status = '0';
         }

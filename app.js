@@ -14,8 +14,6 @@ require('console-stamp')(console, {
 });
 var os = require('os');
 
-// const schedule = require('node-schedule-tz');
-
 var FolderPath = '../';
 var fs = require('fs');
 
@@ -33,8 +31,6 @@ global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 var cns_assets = require('./routes/assets');
 var cns_webinar_preregist = require('./routes/webinar/preregist');
 
-
-// const dbconfig = require('./config/dbconfig');
 const { url } = require('inspector');
 
 var app = express();
@@ -56,7 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // app.use('/index', index);
 // app.use('/log', log);
 app.use('/assets', cns_assets);
-app.use('/webinar/pre', cns_webinar_preregist);
+app.use('/pre', cns_webinar_preregist);
 
 
 // catch 404 and forward to error handler
@@ -72,7 +68,7 @@ app.use(function(err, req, res, next) {
 
 	// render the error page
 	res.status(err.status || 500);
-	res.render('error');
+	res.json({ error: err })
 });
 
 module.exports = app;

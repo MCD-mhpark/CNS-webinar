@@ -13,6 +13,8 @@ var _contacts = _interopRequireDefault(require("./Data/Contacts/contacts"));
 
 var _customObjects = _interopRequireDefault(require("./Data/CustomObjects/customObjects"));
 
+var _customObjectData = _interopRequireDefault(require("./Data/CustomObjects/customObjectData"));
+
 var _events = _interopRequireDefault(require("./Data/Events/events"));
 
 var _externalActivities = _interopRequireDefault(require("./Data/externalActivities"));
@@ -37,6 +39,7 @@ class Data {
     this.activities = new _activities.default(options);
     this.contacts = new _contacts.default(options);
     this.customObjects = new _customObjects.default(options);
+    this.customObjectData = new _customObjectData.default(options);
     this.events = new _events.default(options);
     this.externalActivities = new _externalActivities.default(options);
     this.forms = new _forms.default(options);
