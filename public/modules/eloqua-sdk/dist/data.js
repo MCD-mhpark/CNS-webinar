@@ -21,6 +21,8 @@ var _externalActivities = _interopRequireDefault(require("./Data/externalActivit
 
 var _forms = _interopRequireDefault(require("./Data/Forms/forms"));
 
+var _formData = _interopRequireDefault(require("./Data/Forms/formData"));
+
 var _visitors = _interopRequireDefault(require("./Data/visitors"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -43,6 +45,7 @@ class Data {
     this.events = new _events.default(options);
     this.externalActivities = new _externalActivities.default(options);
     this.forms = new _forms.default(options);
+    this.formData = new _formData.default(options);
     this.visitors = new _visitors.default(options);
   }
 
