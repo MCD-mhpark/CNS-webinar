@@ -13,6 +13,7 @@ require('console-stamp')(console, {
     }
 });
 var os = require('os');
+const expressValidator = require('express-validator');
 
 var FolderPath = '../';
 var fs = require('fs');
@@ -26,7 +27,6 @@ var cns_eloqua_config = {
 };
 
 global.cns_eloqua = new EloquaApi(cns_eloqua_config);
-
 
 var cns_assets = require('./routes/assets');
 var cns_webinar_preregist = require('./routes/webinar/preregist');
@@ -49,8 +49,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/index', index);
-// app.use('/log', log);
 app.use('/assets', cns_assets);
 app.use('/pre', cns_webinar_preregist);
 
@@ -70,5 +68,7 @@ app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.json({ error: err })
 });
+
+// app.use(expressValidator());
 
 module.exports = app;

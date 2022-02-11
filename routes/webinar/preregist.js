@@ -7,6 +7,7 @@ var moment = require('moment');
 var fs = require('mz/fs');
 const { route } = require('../assets');
 const { json } = require('express');
+const { body, validationResult } = require('express-validator');
 
 /**
  *  로그인 API
@@ -87,9 +88,48 @@ router.post('/login', async function (req, res, next) {
 
 /**
  *  사전등록 API
- * 
  */
-router.post('/preregist', async function(req, res, next) {
+router.post('/preregist', 
+        [
+            body('webinarName').not().isEmpty(),
+            body('webinarName').isLength({max: 50}),
+
+            body('ibch').not().isEmpty(),
+            body('ibch').isLength({max: 50}),
+
+            body('lastname').not().isEmpty(),
+            body('lastname').isLength({max: 50}),
+
+            body('name').not().isEmpty(),
+            body('name').isLength({max: 50}),
+
+            body('email').not().isEmpty(),
+            body('email').isEmail(),
+
+            body('company').not().isEmpty(),
+            body('company').isLength({max: 50}),
+
+            //TODO: 타이틀 picklist
+            body('title').isLength({max: 50}),
+
+            body('hphone').not().isEmpty(),
+            body('hphone').isNumeric({no_symbols: true}),
+
+            body('recom').isLength({max: 50}),
+
+            body('agree1').not().isEmpty(),
+            body('agree1').isIn(['Y','N']),
+            body('agree2').isIn(['Y','N']),
+            body('agree3').isIn(['Y','N'])
+        ]
+        , async function(req, res, next) {
+        
+    //Validation check
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     
     var resultForm = {};
     
@@ -135,7 +175,6 @@ router.post('/preregist', async function(req, res, next) {
         resultForm.status = "-2";
     })
 
-    console.log('status 체크1');
     if (resultForm.hasOwnProperty('status')) {
         return res.json(resultForm);
     }
@@ -147,7 +186,7 @@ router.post('/preregist', async function(req, res, next) {
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
-        console.log('제출 데이터 확인 결과값 받아옴   total = '+result.data.total);
+        
         if (result.data.total > 0) {    // CDO 제출 성공
 
             // 4. Unique code copy 필드 업데이트 ===== start
@@ -190,6 +229,9 @@ router.post('/preregist', async function(req, res, next) {
 });
 
 function mappedForm(data) {
+
+    //Validation check
+    // data.validate('webinarformdata');
 
     var resultform = {};
 
@@ -272,5 +314,6 @@ function mappedForm(data) {
 
     return resultform;
 }
+
 
 module.exports = router;
