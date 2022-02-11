@@ -19,7 +19,24 @@ const { body, validationResult } = require('express-validator');
  *      "hphone":"01011112222"
  *    }
  */
-router.post('/login', async function (req, res, next) {
+router.post('/login',
+        [
+            body('webinarName').not().isEmpty(),
+            body('webinarName').isLength({max: 50}),
+            
+            body('webinarType').not().isEmpty(),
+            body('webinarType').isIn(['Live', 'Ondemand']),
+            
+            body('hphone').not().isEmpty(),
+            body('hphone').isNumeric({no_symbols: true})
+        ], 
+        async function (req, res, next) {
+
+    //Validation check
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
     //1. CDO 검색 ======== start
     const parentId = 80;
@@ -230,9 +247,6 @@ router.post('/preregist',
 
 function mappedForm(data) {
 
-    //Validation check
-    // data.validate('webinarformdata');
-
     var resultform = {};
 
     resultform.type = "FormData";
@@ -314,6 +328,5 @@ function mappedForm(data) {
 
     return resultform;
 }
-
 
 module.exports = router;
