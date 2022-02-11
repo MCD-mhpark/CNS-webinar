@@ -28,6 +28,7 @@ router.post('/login',
             body('webinarType').isIn(['Live', 'Ondemand']),
             
             body('hphone').not().isEmpty(),
+            body('hphone').isLength({max: 50}),
             body('hphone').isNumeric({no_symbols: true})
         ], 
         async function (req, res, next) {
@@ -130,6 +131,7 @@ router.post('/preregist',
             body('title').isLength({max: 50}),
 
             body('hphone').not().isEmpty(),
+            body('hphone').isLength({max: 50}),
             body('hphone').isNumeric({no_symbols: true}),
 
             body('recom').isLength({max: 50}),
