@@ -127,7 +127,6 @@ router.post('/preregist',
             body('company').not().isEmpty(),
             body('company').isLength({max: 50}),
 
-            //TODO: 타이틀 picklist
             body('title').isLength({max: 50}),
 
             body('hphone').not().isEmpty(),
@@ -308,7 +307,7 @@ function mappedForm(data) {
             "type": "FieldValue",
             "id": "5826",
             "name": "폼 제출시간",
-            "value": moment().tz('Asia/Seoul').unix()
+            "value": moment().tz('Canada/Eastern').format("YYYY-MM-DD HH:mm:ss")
         }
     ];
 
