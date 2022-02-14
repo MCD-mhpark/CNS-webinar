@@ -9,15 +9,24 @@ const { route } = require('../assets');
 const { json } = require('express');
 const { body, validationResult } = require('express-validator');
 
+
 /**
- *  로그인 API
- *  
- *  * body sample
- *    {
- *      "webinarName": "A", 
- *      "webinarType": "Live",
- *      "hphone":"01011112222"
- *    }
+ * @api {post} /pre/login 로그인
+ * @apiName Login
+ * @apiGroup webinar
+ * 
+ * @apiBody {String} webinarName 웨비나명
+ * @apiBody {String} webinarType 웨비나종류 : Live / Ondemand
+ * @apiBody {String} hphone 휴대폰번호
+ * 
+ * @apiSuccess {String} status 전송 결과 
+ * @apiSuccess {String} uid 메시지 고유 번호
+ * 
+ * @apiSuccessExample Success-Response:
+ *  {
+ *     "uid": "DLGC2000000093632",
+ *     "status": "1"
+ *  }
  */
 router.post('/login',
         [
@@ -105,7 +114,31 @@ router.post('/login',
 
 
 /**
- *  사전등록 API
+ * @api {post} /pre/preregist 사전등록
+ * @apiName Preregist
+ * @apiGroup webinar
+ * 
+ * @apiBody {String} webinarName 웨비나 구분값
+ * @apiBody {String} ibch 유입경로
+ * @apiBody {String} lastname 성
+ * @apiBody {String} name 이름
+ * @apiBody {String} email 이메일
+ * @apiBody {String} company 회사명
+ * @apiBody {String} title 직책
+ * @apiBody {String} hphone 핸드폰
+ * @apiBody {String} recom 추천인
+ * @apiBody {String} agree1 개인정보 수집 이용동의 (필수) : Y/N
+ * @apiBody {String} agree2 개인정보 수집 이용동의 (선택) : Y/N
+ * @apiBody {String} agree3 마케팅 정보 수신동의 (선택) : Y/N
+ * 
+ * @apiSuccess {String} status 전송 결과 
+ * @apiSuccess {String} uid 메시지 고유 번호
+ * 
+ * @apiSuccessExample Success-Response:
+ *  {
+ *     "uid": "DLGC2000000093632",
+ *     "status": "1"
+ *  }
  */
 router.post('/preregist', 
         [

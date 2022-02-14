@@ -51,6 +51,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/assets', cns_assets);
 app.use('/pre', cns_webinar_preregist);
+app.use('/apidoc', express.static(__dirname + '/apidoc'));
+
 
 
 // catch 404 and forward to error handler
