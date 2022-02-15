@@ -22,11 +22,28 @@ const { body, validationResult } = require('express-validator');
  * @apiSuccess {String} status 전송 결과 
  * @apiSuccess {String} uid 메시지 고유 번호
  * 
- * @apiSuccessExample Success-Response:
- *  {
+ * @apiSuccessExample 로그인 성공
+ * {
  *     "uid": "DLGC2000000093632",
  *     "status": "1"
+ * }
+ * 
+ * @apiErrorExample 로그인 실패
+ *  {
+ *      "status": "0"
  *  }
+ * 
+ * @apiErrorExample Validation Error
+ * {
+ *     "errors": [
+ *         {
+ *             "value": "010-1111-2222",
+ *             "msg": "Invalid value",
+ *             "param": "hphone",
+ *             "location": "body"
+ *         }
+ *     ]
+ * }
  */
 router.post('/login',
         [
@@ -134,11 +151,34 @@ router.post('/login',
  * @apiSuccess {String} status 전송 결과 
  * @apiSuccess {String} uid 메시지 고유 번호
  * 
- * @apiSuccessExample Success-Response:
+ * @apiSuccessExample 사전등록 성공
  *  {
  *     "uid": "DLGC2000000093632",
  *     "status": "1"
  *  }
+ * 
+ * @apiErrorExample 중복 데이터 입력
+ * {
+ *     "status": "-1"
+ * }
+ * 
+ * @apiErrorExample 레코드 생성 실패
+ * {
+ *     "status": "0"
+ * }
+ * 
+ * @apiErrorExample Validation Error
+ * {
+ *     "errors": [
+ *         {
+ *             "value": "010-1111-2222",
+ *             "msg": "Invalid value",
+ *             "param": "hphone",
+ *             "location": "body"
+ *         }
+ *     ]
+ * }
+ * 
  */
 router.post('/preregist', 
         [
