@@ -55,7 +55,7 @@ router.post('/login',
             
             body('hphone').not().isEmpty(),
             body('hphone').isLength({max: 50}),
-            body('hphone').isNumeric({no_symbols: true})
+            body('hphone').isMobilePhone(['ko-KR']),
         ], 
         async function (req, res, next) {
 
@@ -204,7 +204,7 @@ router.post('/preregist',
 
             body('hphone').not().isEmpty(),
             body('hphone').isLength({max: 50}),
-            body('hphone').isNumeric({no_symbols: true}),
+            body('hphone').isMobilePhone(['ko-KR']),
 
             body('recom').isLength({max: 50}),
 
