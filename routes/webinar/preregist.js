@@ -185,7 +185,7 @@ router.post('/preregist',
             body('webinarName').not().isEmpty(),
             body('webinarName').isLength({max: 50}),
 
-            body('ibch').not().isEmpty(),
+            //body('ibch').not().isEmpty(),
             body('ibch').isLength({max: 50}),
 
             body('lastname').not().isEmpty(),
