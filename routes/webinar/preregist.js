@@ -152,13 +152,14 @@ router.post('/login',
  * @apiBody {String} agree1 개인정보 수집 이용동의 (필수) : Y/N
  * @apiBody {String} agree2 개인정보 수집 이용동의 (선택) : Y/N
  * @apiBody {String} agree3 마케팅 정보 수신동의 (선택) : Y/N
+ * @apiBody {String} que1 질문1
+ * @apiBody {String} que2 질문2
+ * @apiBody {String} que3 질문3
  * 
  * @apiSuccess {String} status 전송 결과 
- * @apiSuccess {String} uid 메시지 고유 번호
  * 
  * @apiSuccessExample 사전등록 성공
  *  {
- *     "uid": "DLGC2000000093632",
  *     "status": "1"
  *  }
  * 
@@ -216,7 +217,11 @@ router.post('/preregist',
             body('agree1').not().isEmpty(),
             body('agree1').isIn(['Y','N']),
             body('agree2').isIn(['Y','N']),
-            body('agree3').isIn(['Y','N'])
+            body('agree3').isIn(['Y','N']), 
+
+            body('que1').not().isEmpty(),
+            body('que2').not().isEmpty(),
+            body('que3').not().isEmpty(),
         ]
         , async function(req, res, next) {
 
@@ -315,7 +320,7 @@ router.post('/preregist',
             // 4. Unique code copy 필드 업데이트 ===== end
 
         } else {    // CDO 제출 실패
-            logger.error('/preregist formprocessing 후 CDO 생성 실패 : ');
+            logger.error('/preregist formprocessing 후 CDO 생성 실패');
         }
 
     }).catch((err) => {
@@ -388,6 +393,21 @@ function mappedForm(data) {
             "id": "5826",
             "name": "폼 제출시간",
             "value": moment().tz('Canada/Eastern').format("YYYY-MM-DD HH:mm:ss")
+        },{
+            "type": "FieldValue",
+            "id": "6121",
+            "name": "1. 본 웨비나에 참석하시게 된 주요 이유는 무엇인가요?",
+            "value": data.que1
+        },{
+            "type": "FieldValue",
+            "id": "6122",
+            "name": "2. 본 웨비나에서 관심있는 세션은 무엇인가요? (중복선택 가능)",
+            "value": data.que2
+        },{
+            "type": "FieldValue",
+            "id": "6123",
+            "name": "3. 본 웨비나에 기대하는 점이나 사전 질문 있으면 남겨주세요.",
+            "value": data.que3
         }
     ];
 
