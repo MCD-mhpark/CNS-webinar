@@ -29,6 +29,8 @@
     "morgan": "^1.10.0",
     "mz": "^2.7.0",
     "request": "^2.88.2",
-    "request-promise": "^4.2.6"
+    "request-promise": "^4.2.6",
+    "winston": "^3.6.0",
+    "winston-daily-rotate-file": "^4.6.1"
   }
 }

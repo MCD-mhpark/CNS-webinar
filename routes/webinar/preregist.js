@@ -8,7 +8,7 @@ var fs = require('mz/fs');
 const { route } = require('../assets');
 const { json } = require('express');
 const { body, validationResult } = require('express-validator');
-
+const logger = require('../../config/winston');
 
 /**
  * @api {post} /pre/login 로그인
@@ -62,8 +62,11 @@ router.post('/login',
     //Validation check
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        // logger.info('/login validation error : ' + errors.array());
         return res.status(400).json({ errors: errors.array() });
     }
+
+    // logger.info('/login start : ' + body.toString());
 
     //1. CDO 검색 ======== start
     const parentId = 80;
@@ -72,9 +75,10 @@ router.post('/login',
         'search' : searchString, 
         'depth' : 'complete'
     }
+    logger.info('/login CDO 검색 : ' + searchString);
     
     cns_eloqua.data.customObjectData.get(parentId, queryString).then(async (result) => {
-        console.log(result.data);
+        logger.info('/login CDO 검색 성공 count: ' + result.data.total);
 
         var resultForm = {};
         
@@ -84,6 +88,7 @@ router.post('/login',
 
             //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== start
             if (req.body.webinarType == 'Live') {
+                logger.info('/login 로그인 성공(Live) : ' + loginData.uniqueCode);
                 var loginUpdateData = loginData;
                 var loginUpdateDataFields = [
                     { type: 'FieldValue', id: '822', value: 'Y' },     // 참석여부 : Y/N (default:N)
@@ -93,15 +98,13 @@ router.post('/login',
 
                 await cns_eloqua.data.customObjectData.update(parentId, loginData.id, loginUpdateData).then((result) => {
 
-                    console.log(loginData.uniqueCode + " : 업데이트");
+                    logger.info('/login CDO 업데이트(Live) : ' + loginData.uniqueCode);
                     resultForm.uid = loginData.uniqueCode;
                     resultForm.status = '1';
 
                 }).catch((err) => {
 
-                    console.log(err.message);
-
-                    //TODO: 갱신 실패에 대한 에러코드 협의
+                    logger.error('/login CDO 업데이트 실패' + err.message);
                     resultForm.status = '-1';
                 })
             }
@@ -109,12 +112,14 @@ router.post('/login',
 
             //3. 다시보기 로그인 성공시 uid, status 전달 ======== start
             else {
+                logger.info('/login 로그인 성공(Ondemand) : ' + loginData.uniqueCode);
                 resultForm.uid = loginData.uniqueCode;
                 resultForm.status = '1';
             }
             //3. 다시보기 로그인 성공시 uid, status 전달 ======== end
 
         } else {
+            logger.info('/login 검색결과 0건');
             resultForm.status = '0';
         }
 
@@ -122,7 +127,7 @@ router.post('/login',
 
     }).catch((err) => {
 
-        console.error(err.message);
+        logger.error('/login CDO 검색 실패' + err.message);
         res.json(err);
 
     });
@@ -214,14 +219,16 @@ router.post('/preregist',
             body('agree3').isIn(['Y','N'])
         ]
         , async function(req, res, next) {
-        
+
     //Validation check
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+        // logger.info('/preregist validation error : ' + errors.array());
+        return res.status(400).json({ errors: errors.array() });
     }
 
-    
+    // logger.info('/preregist start : ' + body.toString());
+
     var resultForm = {};
     
     // 1. 중복 데이터 조회 ===== start
@@ -231,18 +238,19 @@ router.post('/preregist',
         'search' : searchString, 
         'depth' : 'complete'
     }
+    logger.info('/preregist 중복데이터 CDO 검색 : ' + searchString);
 
     await cns_eloqua.data.customObjectData.get(cdoID, queryString).then((result) => {
-        console.log(result.data);
 
         //CDO 중복값 존재
         if (result.data.total > 0) {
+            logger.info('/preregist 중복데이터 존재');
             resultForm.status = "-1";
         }
 
     }).catch((err) => {
         //통신에러
-        console.log(err);
+        logger.error('/preregist 중복데이터 CDO 검색 실패 : ' + err.message);
         resultForm.status = "-2";
     });
 
@@ -255,33 +263,36 @@ router.post('/preregist',
     // 2. 폼 데이터 제출 ===== start
     const formID = 383;
     var insertForm = mappedForm(req.body);
-    console.log(insertForm);
+    
     await cns_eloqua.data.formData.create(formID, insertForm).then(async (result) => {
 
-        console.log('form 데이터 제출 완료');
+        resultForm.status = "1";
     
     }).catch((err) => {
         //통신에러
-        console.log(err);
+        logger.error('/preregist form 데이터 제출 실패 : ' + err.message);
         resultForm.status = "-2";
     })
 
-    if (resultForm.hasOwnProperty('status')) {
-        return res.json(resultForm);
-    }
+    // if (resultForm.hasOwnProperty('status')) {
+    logger.info('/preregist form 데이터 제출 완료');
+    if (resultForm.status == "-2") return res.json(resultForm);
+    else if (resultForm.status == "1") res.json(resultForm);
+    // }
     // 2. 폼 데이터 제출 ===== end
 
     // 3. 제출 데이터 확인 ===== start
 
     // 엘로콰 통신 지연: 5초
     await new Promise(resolve => setTimeout(resolve, 5000));
-
+    
     await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
         
         if (result.data.total > 0) {    // CDO 제출 성공
-
+            
             // 4. Unique code copy 필드 업데이트 ===== start
             var updateForm = result.data.elements[0];
+            
             updateForm.fieldValues = [
                 {
                     "type": "FieldValue",
@@ -289,34 +300,30 @@ router.post('/preregist',
                     "value": updateForm.uniqueCode
                 }
             ];
+            logger.info('/preregist CDO 생성 확인 성공 : ' + updateForm.uniqueCode);
 
             await cns_eloqua.data.customObjectData.update(cdoID, updateForm.id, updateForm).then((result) => {
-                
+
                 // 업데이트 성공
-                resultForm.status = "1";
                 resultForm.uid = updateForm.uniqueCode;
-                
+                logger.info('/preregist CDO 업데이트 성공 : ' + resultForm.uid);
+
             }).catch((err) => {
                 //통신에러
-                console.log(err);
-                resultForm.status = "-2";
+                logger.error('/preregist CDO 업데이트 실패 : ' + err.message);
             })
             // 4. Unique code copy 필드 업데이트 ===== end
 
         } else {    // CDO 제출 실패
-            resultForm.status = "0";
+            logger.error('/preregist formprocessing 후 CDO 생성 실패 : ');
         }
 
     }).catch((err) => {
         //통신에러
-        console.log(err);
-        resultForm.status = "-2";
+        logger.error('/preregist CDO 검색 실패 : ' + err.message);
     });
 
     // 3. 제출 데이터 확인 ===== end
-
-    // JSON 리턴
-    res.send(resultForm);
 });
 
 function mappedForm(data) {
