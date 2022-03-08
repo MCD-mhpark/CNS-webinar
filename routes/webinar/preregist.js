@@ -141,6 +141,7 @@ router.post('/login',
  * @apiGroup webinar
  * 
  * @apiBody {String} webinarName 웨비나 구분값
+ * @apiBody {String} webinarType 웨비나종류 : Live / Ondemand
  * @apiBody {String} ibch 유입경로
  * @apiBody {String} lastname 성
  * @apiBody {String} name 이름
@@ -219,14 +220,40 @@ router.post('/preregist',
             body('agree2').isIn(['Y','N']),
             body('agree3').isIn(['Y','N']), 
 
-            body('que1').not().isEmpty(),
-            body('que2').not().isEmpty(),
-            body('que3').not().isEmpty(),
+            body('webinarType').not().isEmpty(),
+            body('webinarType').isIn(['Live', 'Ondemand'])
         ]
         , async function(req, res, next) {
 
     //Validation check
     const errors = validationResult(req);
+    //Live 의 경우에만 que1,2,3 필수
+    if (req.body.webinarType == 'Live') {
+        if(!req.body.hasOwnProperty('que1') || req.body.que1 == ""){
+            errors.errors.push({
+                "value": "",
+                "msg": "Invalid value",
+                "param": "que1",
+                "location": "body"
+            });
+        }
+        if(!req.body.hasOwnProperty('que2') || req.body.que2 == ""){
+            errors.errors.push({
+                "value": "",
+                "msg": "Invalid value",
+                "param": "que2",
+                "location": "body"
+            });
+        }
+        if(!req.body.hasOwnProperty('que3') || req.body.que3 == ""){
+            errors.errors.push({
+                "value": "",
+                "msg": "Invalid value",
+                "param": "que3",
+                "location": "body"
+            });
+        }
+    }
     if (!errors.isEmpty()) {
         // logger.info('/preregist validation error : ' + errors.array());
         return res.status(400).json({ errors: errors.array() });
