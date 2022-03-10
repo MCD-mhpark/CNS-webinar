@@ -227,33 +227,33 @@ router.post('/preregist',
 
     //Validation check
     const errors = validationResult(req);
-    //Live 의 경우에만 que1,2,3 필수
-    if (req.body.webinarType == 'Live') {
-        if(!req.body.hasOwnProperty('que1') || req.body.que1 == ""){
-            errors.errors.push({
-                "value": "",
-                "msg": "Invalid value",
-                "param": "que1",
-                "location": "body"
-            });
-        }
-        if(!req.body.hasOwnProperty('que2') || req.body.que2 == ""){
-            errors.errors.push({
-                "value": "",
-                "msg": "Invalid value",
-                "param": "que2",
-                "location": "body"
-            });
-        }
-        if(!req.body.hasOwnProperty('que3') || req.body.que3 == ""){
-            errors.errors.push({
-                "value": "",
-                "msg": "Invalid value",
-                "param": "que3",
-                "location": "body"
-            });
-        }
-    }
+    //Live 의 경우에만 que1,2,3 필수 => que1,2,3 은 항상 필수가 아니도록 수정 (2022-03-10)
+    // if (req.body.webinarType == 'Live') { 
+    //     if(!req.body.hasOwnProperty('que1') || req.body.que1 == ""){
+    //         errors.errors.push({
+    //             "value": "",
+    //             "msg": "Invalid value",
+    //             "param": "que1",
+    //             "location": "body"
+    //         });
+    //     }
+    //     if(!req.body.hasOwnProperty('que2') || req.body.que2 == ""){
+    //         errors.errors.push({
+    //             "value": "",
+    //             "msg": "Invalid value",
+    //             "param": "que2",
+    //             "location": "body"
+    //         });
+    //     }
+    //     if(!req.body.hasOwnProperty('que3') || req.body.que3 == ""){
+    //         errors.errors.push({
+    //             "value": "",
+    //             "msg": "Invalid value",
+    //             "param": "que3",
+    //             "location": "body"
+    //         });
+    //     }
+    // }
     if (!errors.isEmpty()) {
         // logger.info('/preregist validation error : ' + errors.array());
         return res.status(400).json({ errors: errors.array() });
