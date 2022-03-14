@@ -1,0 +1,24 @@
+version: '3.6'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "443:443"
+
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/nginx.conf # host 와 컨테이너 안의 디렉토리를 연결
+      - ./ssl:/etc/nginx/ssl
+    depends_on: # 지정된 서비스가 먼저 실행
+      - lgcns-webinar
+
+  lgcns-webinar:
+    build :
+        context : .
+        dockerfile : ./Dockerfile
+    image : lgcns_webinar
+    container_name: lgcns-webinar
+    image: cnsimage:1.4
+    ports :
+      - "8001:8001"
+    volumes :
+      - /home/opc/src/CNS_webinar/CNS-webinar/:/home/src/webinar/
