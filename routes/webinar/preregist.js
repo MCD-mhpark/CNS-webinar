@@ -457,4 +457,102 @@ function mappedForm(data) {
     return resultform;
 }
 
+/** 
+ * @api {post} /pre/logout 로그아웃
+ * @apiName logout
+ * @apiGroup webinar
+ * 
+ * @apiBody {String} uid 유저 고유 id
+ * 
+ * @apiSuccess {String} status 전송 결과 
+ * 
+ * @apiSuccessExample 로그아웃 기록 성공
+ *  {
+ *     "status": "1"
+ *  }
+ * 
+ * @apiErrorExample 로그아웃 기록 실패
+ * {
+ *     "status": "0"
+ * }
+ * 
+ * @apiErrorExample Validation Error
+ * {
+ *     "errors": [
+ *         {
+ *             "value": "",
+ *             "msg": "Invalid value",
+ *             "param": "uid",
+ *             "location": "body"
+ *         }
+ *     ]
+ * }
+ * 
+*/
+router.post('/logout', 
+        [
+            body('uid').not().isEmpty()
+        ],
+        async function(req, res, next) {
+
+    //Validation check
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        // logger.info('/preregist validation error : ' + errors.array());
+        return res.status(400).json({ errors: errors.array() });
+    }
+    
+    var resultForm = {};
+
+    // 1. Withyou_webinar : 기존 데이터 id 검색 ===== start
+    const cdoID = 80;
+    var searchString = "?uniqueCode='" + req.body.uid +"'"
+    var queryString = {
+        'search': searchString, 
+        'depth': 'minimal'
+    }
+    logger.info('/logout 기존 데이터 id 검색 : ' + searchString);
+
+    await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
+
+        if(result.data.total > 0){
+            //CDO 검색 완료
+            var loginData = result.data.elements[0];
+            logger.info('/logout 기존 CDO id : ' + loginData.id);
+
+            // 2. Withyou_webinar : 로그아웃시간 update ===== start
+            var updateData = {};
+            updateData.id = loginData.id;
+            updateData.fieldValues = [
+                { type:'CustomObjectField', id:'808', value: moment().tz('Asia/Seoul').unix() }   //로그아웃 시간
+            ];
+
+            await cns_eloqua.data.customObjectData.update(cdoID, loginData.id, updateData).then((result) => {
+
+                logger.info('/logout CDO 업데이트 완료 : ' + loginData.id);
+                resultForm.status = "1";
+
+            }).catch((err) => {
+                logger.error('/logout CDO 업데이트 실패 : ' + err.message);
+                resultForm.status = "0";
+            });
+
+            // 2. Withyou_webinar : 로그아웃시간 update ===== end
+
+        } else {
+            //CDO 검색 실패
+            logger.error('/logout 기존 데이터 검색 결과 0건');
+            resultForm.status = "0";
+        }
+
+    }).catch((err) => {
+        logger.error('/logout 기존 데이터 id 검색 에러 : ' + err.message);
+        resultForm.status = "0";
+    })
+
+    // 1. Withyou_webinar : uid로 CDO id 검색 ===== end
+    
+    return res.json(resultForm);
+});
+
 module.exports = router;
