@@ -60,7 +60,7 @@ const transports = [
     datePattern: 'YYYY-MM-DD',
     dirname: path.join(__dirname, logDir, '/error'),
     filename: '%DATE%.error.log',
-    maxFiles: 30,
+    // maxFiles: 30,
     zippedArchive: true
   }),
 
@@ -70,7 +70,7 @@ const transports = [
     datePattern: 'YYYY-MM-DD',
     dirname: path.join(__dirname, logDir, '/all'),
     filename: '%DATE%.all.log',
-    maxFiles: 7,
+    // maxFiles: 7,
     zippedArchive: true
   })
 ]

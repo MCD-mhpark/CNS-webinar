@@ -66,7 +66,7 @@ router.post('/login',
         return res.status(400).json({ errors: errors.array() });
     }
 
-    // logger.info('/login start : ' + body.toString());
+    // logger.info('/login start : ' + JSON.stringify(req.body));
 
     //1. CDO 검색 ======== start
     const parentId = 80;
@@ -259,7 +259,7 @@ router.post('/preregist',
         return res.status(400).json({ errors: errors.array() });
     }
 
-    // logger.info('/preregist start : ' + body.toString());
+    // logger.info('/preregist start : ' + JSON.stringify(req.body));
 
     var resultForm = {};
     
