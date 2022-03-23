@@ -630,7 +630,7 @@ router.post('/ondemand',
 
             await cns_eloqua.data.customObjectData.create(ondemandCDOid, insertForm).then(async (createresult) => {
 
-                logger.info('/ondemand CDO 데이터 생성 완료 : ' + createresult.id);
+                logger.info('/ondemand CDO 데이터 생성 완료 : ' + createresult.data.id);
                 resultForm.status = "1";
             
             }).catch((err) => {
