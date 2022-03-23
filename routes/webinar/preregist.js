@@ -498,7 +498,6 @@ router.post('/logout',
     //Validation check
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        // logger.info('/preregist validation error : ' + errors.array());
         return res.status(400).json({ errors: errors.array() });
     }
     
@@ -541,7 +540,7 @@ router.post('/logout',
 
         } else {
             //CDO 검색 실패
-            logger.error('/logout 기존 데이터 검색 결과 0건');
+            logger.info('/logout 기존 데이터 검색 결과 0건');
             resultForm.status = "0";
         }
 
@@ -552,6 +551,110 @@ router.post('/logout',
 
     // 1. Withyou_webinar : uid로 CDO id 검색 ===== end
     
+    return res.json(resultForm);
+});
+
+
+/**
+ * @api {post} /pre/ondemand 다시보기 시청기록
+ * @apiName ondemand
+ * @apiGroup webinar
+ * 
+ * @apiBody {String} uid 유저 고유 id
+ * @apiBody {String} webinarName 웨비나명
+ * 
+ * @apiSuccess {String} status 전송 결과 
+ * 
+ * @apiSuccessExample 다시보기 시청 기록 성공
+ *  {
+ *     "status": "1"
+ *  }
+ * 
+ * @apiErrorExample 다시보기 시청 기록 실패
+ * {
+ *     "status": "0"
+ * }
+ * 
+ * @apiErrorExample Validation Error
+ * {
+ *     "errors": [
+ *         {
+ *             "value": "",
+ *             "msg": "Invalid value",
+ *             "param": "uid",
+ *             "location": "body"
+ *         }
+ *     ]
+ * }
+ */
+router.post('/ondemand',
+        [   
+            body('uid').not().isEmpty(), 
+            body('webinarName').not().isEmpty(), 
+        ],  
+        async function (req, res, next) {
+
+    //Validation check
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    var resultForm = {};
+
+    // 1. Withyou_webinar : 기존 데이터 EmailAddress 검색 ===== start
+    const withyouCDOid = 80;
+    var searchString = "?uniqueCode='" + req.body.uid + "'";
+    var queryString = {
+        'search' : searchString, 
+        'depth' : 'minimal'
+    };
+    logger.info('/ondemand 기존 데이터 Email 검색 : ' + searchString);
+
+    await cns_eloqua.data.customObjectData.get(withyouCDOid, queryString).then(async (result) => {
+
+        if (result.data.total > 0) {
+            // 기존 데이터 검색결과 존재
+            var resultEmail = result.data.elements[0].fieldValues.find(item => item.id === '778').value;
+            logger.info('/ondemand 기존 데이터 Email : ' + resultEmail);
+
+            // 2. Withyou_다시보기 create ===== start
+            const ondemandCDOid = 84;
+            var insertForm = {};
+            insertForm.type = 'CustomObjectData';
+            insertForm.fieldValues = [
+                { type:'CustomObjectField', id : '818', value : resultEmail },   // Email Address
+                { type:'CustomObjectField', id : '819', value : moment().tz('Asia/Seoul').unix() },   // 로그인 시간
+                { type:'CustomObjectField', id : '820', value : req.body.webinarName }   // 시청한 웨비나명
+            ];
+
+            await cns_eloqua.data.customObjectData.create(ondemandCDOid, insertForm).then(async (createresult) => {
+
+                logger.info('/ondemand CDO 데이터 생성 완료 : ' + createresult.id);
+                resultForm.status = "1";
+            
+            }).catch((err) => {
+                //통신에러
+                logger.error('/ondemand CDO 데이터 생성 실패 : ' + err.message);
+                resultForm.status = "0";
+            });
+        
+            // 2. Withyou_다시보기 insert ===== end
+
+        } else {
+            // 기존 데이터 검색결과 0건
+            logger.info('/ondemand CDO 데이터 검색결과 0건');
+            resultForm.status = "0";
+        }
+
+    }).catch((err) => {
+        //통신에러
+        logger.error('/ondemand CDO 검색 실패 : ' + err.message);
+        resultForm.status = "0";
+    })
+    
+    // 1. Withyou_webinar : 기존 데이터 EmailAddress 검색 ===== end
+
     return res.json(resultForm);
 });
 
