@@ -316,7 +316,7 @@ router.post('/preregist',
     // 3. 제출 데이터 확인 ===== start
 
     // 엘로콰 통신 지연: 5초
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 10000));
     
     await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
         
