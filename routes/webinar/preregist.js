@@ -307,7 +307,7 @@ router.post('/preregist',
     })
 
     // if (resultForm.hasOwnProperty('status')) {
-    logger.info('/preregist form 데이터 제출 완료');
+    logger.info('/preregist form 데이터 제출 완료(' + req.body.hphone + ')');
     if (resultForm.status == "-2") return res.json(resultForm);
     else if (resultForm.status == "1") res.json(resultForm);
     // }
@@ -315,7 +315,7 @@ router.post('/preregist',
 
     // 3. 제출 데이터 확인 ===== start
 
-    // 엘로콰 통신 지연: 5초
+    // 엘로콰 통신 지연: 10초
     await new Promise(resolve => setTimeout(resolve, 10000));
     
     await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
@@ -332,22 +332,58 @@ router.post('/preregist',
                     "value": updateForm.uniqueCode
                 }
             ];
-            logger.info('/preregist CDO 생성 확인 성공 : ' + updateForm.uniqueCode);
+            logger.info('/preregist CDO 생성 확인 성공(' + req.body.hphone+ ') : ' + updateForm.uniqueCode);
 
             await cns_eloqua.data.customObjectData.update(cdoID, updateForm.id, updateForm).then((result) => {
 
                 // 업데이트 성공
                 resultForm.uid = updateForm.uniqueCode;
-                logger.info('/preregist CDO 업데이트 성공 : ' + resultForm.uid);
+                logger.info('/preregist CDO 업데이트 성공(' + req.body.hphone+ ') : ' + resultForm.uid);
 
             }).catch((err) => {
                 //통신에러
-                logger.error('/preregist CDO 업데이트 실패 : ' + err.message);
+                logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
             })
             // 4. Unique code copy 필드 업데이트 ===== end
 
         } else {    // CDO 제출 실패
-            logger.error('/preregist formprocessing 후 CDO 생성 실패');
+            logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 1회차');
+            
+            // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== start
+            await new Promise(resolve => setTimeout(resolve, 10000));
+
+            await cns_eloqua.data.customObjectData.get(cdoID, queryString).then(async (result) => {
+                if (result.data.total > 0) {    // CDO 제출 성공
+            
+                    // 4. Unique code copy 필드 업데이트 ===== start
+                    var updateForm = result.data.elements[0];
+                    
+                    updateForm.fieldValues = [
+                        {
+                            "type": "FieldValue",
+                            "id": "838",
+                            "value": updateForm.uniqueCode
+                        }
+                    ];
+                    logger.info('/preregist CDO 생성 확인 성공(' + req.body.hphone+ ') : ' + updateForm.uniqueCode);
+        
+                    await cns_eloqua.data.customObjectData.update(cdoID, updateForm.id, updateForm).then((result) => {
+        
+                        // 업데이트 성공
+                        resultForm.uid = updateForm.uniqueCode;
+                        logger.info('/preregist CDO 업데이트 성공(' + req.body.hphone+ ') : ' + resultForm.uid);
+        
+                    }).catch((err) => {
+                        //통신에러
+                        logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
+                    })
+                    // 4. Unique code copy 필드 업데이트 ===== end
+        
+                } else {    // CDO 제출 실패
+                    logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 2회차');
+                }
+            });
+            // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== end
         }
 
     }).catch((err) => {
