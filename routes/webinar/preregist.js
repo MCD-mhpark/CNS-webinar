@@ -9,6 +9,7 @@ const { route } = require('../assets');
 const { json } = require('express');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../config/winston');
+const mailer = require('../mail');
 
 /**
  * @api {post} /pre/login 로그인
@@ -105,7 +106,8 @@ router.post('/login',
                 }).catch((err) => {
 
                     logger.error('/login CDO 업데이트 실패' + err.message);
-                    resultForm.status = '-1';
+                    sendMail('[웨모사 Alert] login CDO 업데이트 실패', err.message);
+                    resultForm.status = '-2';
                 })
             }
             //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== end
@@ -128,6 +130,7 @@ router.post('/login',
     }).catch((err) => {
 
         logger.error('/login CDO 검색 실패' + err.message);
+        sendMail('[웨모사 Alert] login CDO 검색 실패', err.message);
         res.json(err);
 
     });
@@ -283,6 +286,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist 중복데이터 CDO 검색 실패 : ' + err.message);
+        sendMail('[웨모사 Alert] preregist 중복데이터 CDO 검색 실패', err.message);
         resultForm.status = "-2";
     });
 
@@ -303,6 +307,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist form 데이터 제출 실패 : ' + err.message);
+        sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', err.message);
         resultForm.status = "-2";
     })
 
@@ -343,11 +348,13 @@ router.post('/preregist',
             }).catch((err) => {
                 //통신에러
                 logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
+                sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
             })
             // 4. Unique code copy 필드 업데이트 ===== end
 
         } else {    // CDO 제출 실패
             logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 1회차');
+            sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 1회차', err.message);
             
             // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== start
             await new Promise(resolve => setTimeout(resolve, 10000));
@@ -376,11 +383,13 @@ router.post('/preregist',
                     }).catch((err) => {
                         //통신에러
                         logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
+                        sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
                     })
                     // 4. Unique code copy 필드 업데이트 ===== end
         
                 } else {    // CDO 제출 실패
                     logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 2회차');
+                    sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 2회차', err.message);
                 }
             });
             // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== end
@@ -389,6 +398,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist CDO 검색 실패 : ' + err.message);
+        sendMail('[웨모사 Alert] preregist CDO 검색 실패', err.message);
     });
 
     // 3. 제출 데이터 확인 ===== end
@@ -693,5 +703,59 @@ router.post('/ondemand',
 
     return res.json(resultForm);
 });
+
+/*
+    메일 전송 테스트용 메소드
+    Withyou_알림이메일수신목록 CDO의 메일주소로 메일을 보낸다
+    
+    title: 메일 제목
+    content: 메일 내용
+*/
+router.get('/mailtest', function(req, res, next) {
+    sendMail(req.query.title, req.query.content);
+    res.json('메일전송 완료');
+})
+
+async function sendMail (title, content) {
+
+    var searchString = "?____1='Y'";
+    var queryString = {
+        'search' : searchString, 
+        'depth' : 'complete'
+    }
+    logger.info('알림메일 수신자 검색 : ' + searchString);
+    
+    await cns_eloqua.data.customObjectData.get(117, queryString).then(async (result) => {
+
+        var email_list = "";
+
+        if(result.data.total > 0){
+            // 수신자 CDO 검색 완료
+            var emailList = result.data.elements;
+            for (var email of emailList) {
+                email = email.fieldValues.find((item, idx) => { return item.id == '1117'; }).value;
+                email_list += email + ", "
+            }
+
+        } else {
+            // 수신자 CDO 검색 결과 0건
+            logger.info('이메일 수신 리스트 검색 결과 0건');
+            email_list = "mhpark@goldenplanet.co.kr";
+        }
+
+        let emailParam = {
+            toEmail : email_list, 
+            subject : title,
+            text : content
+        };
+    
+        // 메일 송신
+        mailer.sendGmail(emailParam);
+        
+    }).catch((err) => {
+        logger.error('에러 알림 수신자 검색 에러 : ' + err.message);
+    })
+    return "send Alert"
+}
 
 module.exports = router;

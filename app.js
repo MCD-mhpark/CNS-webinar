@@ -14,17 +14,14 @@ require('console-stamp')(console, {
 });
 var os = require('os');
 const expressValidator = require('express-validator');
+const userInfo = require('./config/userinfo.json');
 
 var FolderPath = '../';
 var fs = require('fs');
 
 
 // 회사명 : LGCNS
-var cns_eloqua_config = {
-	sitename: 'LGCNS',
-	username: 'GP.MCD',
-	password: 'Gp6875@@'
-};
+var cns_eloqua_config = userInfo;
 
 global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
