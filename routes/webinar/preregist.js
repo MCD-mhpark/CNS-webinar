@@ -106,7 +106,7 @@ router.post('/login',
                 }).catch((err) => {
 
                     logger.error('/login CDO 업데이트 실패' + err.message);
-                    sendMail('[웨모사 Alert] login CDO 업데이트 실패', err.message);
+                    sendMail('[웨모사 Alert] login CDO 업데이트 실패', JSON.stringify(err));
                     resultForm.status = '-2';
                 })
             }
@@ -130,7 +130,7 @@ router.post('/login',
     }).catch((err) => {
 
         logger.error('/login CDO 검색 실패' + err.message);
-        sendMail('[웨모사 Alert] login CDO 검색 실패', err.message);
+        sendMail('[웨모사 Alert] login CDO 검색 실패', JSON.stringify(err));
         res.json(err);
 
     });
@@ -286,7 +286,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist 중복데이터 CDO 검색 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist 중복데이터 CDO 검색 실패', err.message);
+        sendMail('[웨모사 Alert] preregist 중복데이터 CDO 검색 실패', JSON.stringify(err));
         resultForm.status = "-2";
     });
 
@@ -307,7 +307,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist form 데이터 제출 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', err.message);
+        sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', JSON.stringify(err));
         resultForm.status = "-2";
     })
 
@@ -348,13 +348,13 @@ router.post('/preregist',
             }).catch((err) => {
                 //통신에러
                 logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
-                sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
+                sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', JSON.stringify(err));
             })
             // 4. Unique code copy 필드 업데이트 ===== end
 
         } else {    // CDO 제출 실패
             logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 1회차');
-            sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 1회차', err.message);
+            sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 1회차', 'formprocessing 10초 초과 레코드 발생, 2회차 시도');
             
             // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== start
             await new Promise(resolve => setTimeout(resolve, 10000));
@@ -383,13 +383,13 @@ router.post('/preregist',
                     }).catch((err) => {
                         //통신에러
                         logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
-                        sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
+                        sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', JSON.stringify(err));
                     })
                     // 4. Unique code copy 필드 업데이트 ===== end
         
                 } else {    // CDO 제출 실패
                     logger.error('/preregist formprocessing 후 CDO 생성 실패(' + req.body.hphone+ ') 2회차');
-                    sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 2회차', err.message);
+                    sendMail('[웨모사 Alert] preregist formprocessing 후 CDO 생성 실패 2회차', 'formprocessing 20초 초과 레코드 발생, uid copy 수동 업데이트 필요');
                 }
             });
             // 5. 1회 갱신 실패한 레코드는 10초를 더 기다린 후 재시도 ===== end
@@ -398,7 +398,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist CDO 검색 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist CDO 검색 실패', err.message);
+        sendMail('[웨모사 Alert] preregist CDO 검색 실패', JSON.stringify(err));
     });
 
     // 3. 제출 데이터 확인 ===== end
