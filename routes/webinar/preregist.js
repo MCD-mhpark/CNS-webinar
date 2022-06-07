@@ -481,6 +481,11 @@ function mappedForm(data) {
             "id": "6123",
             "name": "3. 본 웨비나에 기대하는 점이나 사전 질문 있으면 남겨주세요.",
             "value": data.que3
+        },{
+            "type": "FieldValue",
+            "id": "6800",
+            "name": "webinarType",
+            "value": data.webinarType
         }
     ];
 
