@@ -106,7 +106,7 @@ router.post('/login',
                 }).catch((err) => {
 
                     logger.error('/login CDO 업데이트 실패' + err.message);
-                    sendMail('[웨모사 Alert] login CDO 업데이트 실패', JSON.stringify(err));
+                    sendMail('[웨모사 Alert] login CDO 업데이트 실패', err.message);
                     resultForm.status = '-2';
                 })
             }
@@ -130,7 +130,7 @@ router.post('/login',
     }).catch((err) => {
 
         logger.error('/login CDO 검색 실패' + err.message);
-        sendMail('[웨모사 Alert] login CDO 검색 실패', JSON.stringify(err));
+        sendMail('[웨모사 Alert] login CDO 검색 실패', err.message);
         res.json(err);
 
     });
@@ -286,7 +286,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist 중복데이터 CDO 검색 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist 중복데이터 CDO 검색 실패', JSON.stringify(err));
+        sendMail('[웨모사 Alert] preregist 중복데이터 CDO 검색 실패', err.message);
         resultForm.status = "-2";
     });
 
@@ -307,7 +307,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist form 데이터 제출 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', JSON.stringify(err));
+        sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', err.message);
         resultForm.status = "-2";
     })
 
@@ -348,7 +348,7 @@ router.post('/preregist',
             }).catch((err) => {
                 //통신에러
                 logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
-                sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', JSON.stringify(err));
+                sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
             })
             // 4. Unique code copy 필드 업데이트 ===== end
 
@@ -383,7 +383,7 @@ router.post('/preregist',
                     }).catch((err) => {
                         //통신에러
                         logger.error('/preregist CDO 업데이트 실패(' + req.body.hphone+ ') : ' + err.message);
-                        sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', JSON.stringify(err));
+                        sendMail('[웨모사 Alert] preregist CDO 업데이트 실패', err.message);
                     })
                     // 4. Unique code copy 필드 업데이트 ===== end
         
@@ -398,7 +398,7 @@ router.post('/preregist',
     }).catch((err) => {
         //통신에러
         logger.error('/preregist CDO 검색 실패 : ' + err.message);
-        sendMail('[웨모사 Alert] preregist CDO 검색 실패', JSON.stringify(err));
+        sendMail('[웨모사 Alert] preregist CDO 검색 실패', err.message);
     });
 
     // 3. 제출 데이터 확인 ===== end
@@ -759,6 +759,17 @@ async function sendMail (title, content) {
         
     }).catch((err) => {
         logger.error('에러 알림 수신자 검색 에러 : ' + err.message);
+
+        var tempEmailList = ['mhpark@goldenplanet.co.kr','jjjeon@goldenplanet.co.kr'];
+
+        let emailParam = {
+            toEmail : tempEmailList, 
+            subject : "[웨모사 Alert] 메일 수신자 리스트 검색 불가",
+            text : err.message
+        };
+    
+        // 메일 송신
+        mailer.sendGmail(emailParam);
     })
     return "send Alert"
 }
