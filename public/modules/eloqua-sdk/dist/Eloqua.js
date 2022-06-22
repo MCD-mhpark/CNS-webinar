@@ -23,7 +23,12 @@ var _system = _interopRequireDefault(require("./system"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classPrivateFieldLooseBase(receiver, privateKey) { if (!Object.prototype.hasOwnProperty.call(receiver, privateKey)) { throw new TypeError("attempted to use private field on non-instance"); } return receiver; }
+function _classPrivateFieldLooseBase(receiver, privateKey) { 
+  if (!Object.prototype.hasOwnProperty.call(receiver, privateKey)) { 
+    throw new TypeError("attempted to use private field on non-instance"); 
+  } 
+  return receiver; 
+}
 
 var id = 0;
 
@@ -64,6 +69,22 @@ class Eloqua {
       writable: true,
       value: null
     });
+    Object.defineProperty(this, _code, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _redirect_uri, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _client_id, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _client_secret, {
+      writable: true,
+      value: null
+    });
     this.apiCalls = 0;
     this.lastError = {};
     this.axiosOptions = {
@@ -97,6 +118,13 @@ class Eloqua {
 
     if (options && options.oauth) {
       _classPrivateFieldLooseBase(this, _oauth)[_oauth] = options.oauth;
+    }
+
+    if (options && options.code && options.redirect_uri && options.client_id && options.client_secret) {
+        _classPrivateFieldLooseBase(this, _code)[_code] = options.code;
+        _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri] = options.redirect_uri;
+        _classPrivateFieldLooseBase(this, _client_id)[_client_id] = options.client_id;
+        _classPrivateFieldLooseBase(this, _client_secret)[_client_secret] = options.client_secret;
     }
 
     this.appcloud = new _appcloud.default(this);
@@ -168,6 +196,47 @@ class Eloqua {
     }
   }
 
+  async getAuthCodeGrant (code, redirect_uri, client_id, client_secret) {
+    console.log('getAuthCodeGrant 시작');
+    debugger;
+    const url = 'https://login.eloqua.com/auth/oauth2/token';
+    const data = {
+       'grant_type': 'authorization_code',
+       'code': code,
+       'redirect_uri': redirect_uri
+    };
+
+    const header = {
+      // 'Host': 'https://elqapi.lgcnswithyou.com',
+      // 'Content-Type': 'application/json',
+      // 'Accept':'*/*',
+      Authorization: "Basic " + Buffer.from(client_id + ':' + client_secret).toString('base64')
+    };
+
+    try {
+      console.log('getAuthCodeGrant - 통신 시작! Authorization: ' + header.Authorization);
+      debugger;
+      // token 통신
+      const response = await _axios.default.post(url, data, header);
+      
+      console.log('getAuthCodeGrant - response완료');
+      debugger;
+      //FIXME : code에 따라 code만료, 토큰발행 성공 등의 상황 가정할 것
+      if (response.status == 200) {
+        console.log('getAuthCodeGrant - response 200!!!!');
+        debugger;
+        _classPrivateFieldLooseBase(this, _oauth)[_oauth].access_token = response.data.access_token;
+        _classPrivateFieldLooseBase(this, _oauth)[_oauth].refresh_token = response.data.refresh_token;
+        await this.setHeaders('Authorization', 'Bearer ' + _classPrivateFieldLooseBase(this, access_token)[access_token]);
+      }
+
+    } catch (error) {
+      console.log('getAuthCodeGrant - 에러');
+      console.log(error);
+      // await this._throwError(error, 'https://login.eloqua.com/auth/oauth2/token');
+    }
+  }
+
   setHeaders(name, value) {
     if (!this.axiosOptions.headers) {
       this.axiosOptions.headers = {};
@@ -233,6 +302,9 @@ class Eloqua {
           username: `${_classPrivateFieldLooseBase(this, _sitename)[_sitename]}\\${_classPrivateFieldLooseBase(this, _username)[_username]}`,
           password: _classPrivateFieldLooseBase(this, _password)[_password]
         };
+      } else if (_classPrivateFieldLooseBase(this, _code)[_code] && _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri] && _classPrivateFieldLooseBase(this, _client_id)[_client_id] && _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]) {
+      log('Getting Authorization code grant');
+        await this.getAuthCodeGrant(_classPrivateFieldLooseBase(this, _code)[_code], _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri], _classPrivateFieldLooseBase(this, _client_id)[_client_id], _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]);
       } else {
         log('Auth Error');
       }
@@ -320,6 +392,14 @@ var _password = _classPrivateFieldLooseKey("password");
 var _oauth = _classPrivateFieldLooseKey("oauth");
 
 var _request = _classPrivateFieldLooseKey("request");
+
+var _code = _classPrivateFieldLooseKey("code");
+
+var _redirect_uri = _classPrivateFieldLooseKey("redirect_uri");
+
+var _client_id = _classPrivateFieldLooseKey("client_id");
+
+var _client_secret = _classPrivateFieldLooseKey("client_secret");
 
 function callbackErrorOrThrow(cb, path) {
   return function handler(object) {

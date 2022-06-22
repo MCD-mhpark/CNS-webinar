@@ -15,15 +15,20 @@ require('console-stamp')(console, {
 var os = require('os');
 const expressValidator = require('express-validator');
 const userInfo = require('./config/userinfo.json');
+const apiInfo = require('./config/apiInfo.json');
 
 var FolderPath = '../';
 var fs = require('fs');
 
 
+// basic 인증 테스트용
 // 회사명 : LGCNS
-var cns_eloqua_config = userInfo;
+// var cns_eloqua_config = userInfo;
+// global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
-global.cns_eloqua = new EloquaApi(cns_eloqua_config);
+// oAuth인증 테스트용
+var cns_eloqua_config = apiInfo;
+global.cns_eloqua = {};
 
 var cns_assets = require('./routes/assets');
 var cns_webinar_preregist = require('./routes/webinar/preregist');
@@ -31,6 +36,28 @@ var cns_webinar_preregist = require('./routes/webinar/preregist');
 const { url } = require('inspector');
 
 var app = express();
+
+app.get('/oauth', function(req, res, next) {
+	var code = req.query.code;
+	cns_eloqua_config['code'] = code;
+	global.cns_eloqua = new EloquaApi(cns_eloqua_config);
+
+	var searchString = "?name='Withyou_알림이메일수신목록'";
+
+    var queryString = {
+        depth: req.query.depth ? req.query.depth : 'minimal', 
+        search: searchString
+    }
+
+    cns_eloqua.assets.customObjects.get(queryString).then((result) => {
+        console.log(result.data);
+        res.json(result.data);
+    }).catch((err) => {
+        console.error(err.message);
+        res.json(err);
+    });
+    
+});
 
 var module_files = path.join(process.cwd(), '../modules');
 app.use(methodOverride('_method'));

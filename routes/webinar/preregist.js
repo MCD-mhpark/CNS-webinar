@@ -755,7 +755,8 @@ async function sendMail (title, content) {
         };
     
         // 메일 송신
-        mailer.sendGmail(emailParam);
+        // FIXME : 테스트용으로 메일 전송 주석처리. 해제 후 push할것
+        // mailer.sendGmail(emailParam);
         
     }).catch((err) => {
         logger.error('에러 알림 수신자 검색 에러 : ' + err.message);
