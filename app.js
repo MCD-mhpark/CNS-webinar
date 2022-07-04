@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var methodOverride = require('method-override');
 var EloquaApi = require('./public/modules/eloqua-sdk');
+// var Eloqua = require('./public/modules/eloqua-sdk/dist/Eloqua.js');
 var moment = require('moment');
 const bodyParser = require('body-parser');
 require('console-stamp')(console, {
@@ -20,6 +21,8 @@ const apiInfo = require('./config/apiInfo.json');
 var FolderPath = '../';
 var fs = require('fs');
 
+const schedule = require('node-schedule-tz');
+var schedule_webinar_Jobs;
 
 // basic 인증 테스트용
 // 회사명 : LGCNS
@@ -56,7 +59,6 @@ app.get('/oauth', function(req, res, next) {
         console.error(err.message);
         res.json(err);
     });
-    
 });
 
 var module_files = path.join(process.cwd(), '../modules');
@@ -96,5 +98,29 @@ app.use(function(err, req, res, next) {
 });
 
 // app.use(expressValidator());
+
+// token refresh scheduler
+function schedule_oAuth_Token_Refresh() {
+    console.log('oAuth token refresh');
+    // let uniqe_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
+    // FIXME : 테스트용 분단위 스케쥴러. 배포시 시간단위로 변경할것 (아래 스케쥴도 6시간 단위로 변경)
+    let unique_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH:mm:ss');
+	let second = "0";
+	// let minutes = "*/1";
+    let minutes = "0";
+	// let hours = "*";
+	let hours = "*/6";
+	let dayofmonth = "*";
+	let month = "*";
+	let weekindex = "*";
+	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+    
+    schedule_webinar_Jobs = schedule.scheduleJob(unique_jobs_name, schedate, "Asia/Seoul", async function() {
+        console.log('oAuth refresh 스케쥴러 실행');
+        await cns_eloqua.refreshToken();
+    });
+}
+
+schedule_oAuth_Token_Refresh();
 
 module.exports = app;

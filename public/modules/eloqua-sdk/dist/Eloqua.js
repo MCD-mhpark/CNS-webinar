@@ -85,6 +85,26 @@ class Eloqua {
       writable: true,
       value: null
     });
+
+    // oauth===================
+    Object.defineProperty(this, _access_token, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _token_type, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _expires_in, {
+      writable: true,
+      value: null
+    });
+    Object.defineProperty(this, _refresh_token, {
+      writable: true,
+      value: null
+    });
+    // oauth===================
+
     this.apiCalls = 0;
     this.lastError = {};
     this.axiosOptions = {
@@ -198,7 +218,6 @@ class Eloqua {
 
   async getAuthCodeGrant (code, redirect_uri, client_id, client_secret) {
     console.log('getAuthCodeGrant 시작');
-    debugger;
     const url = 'https://login.eloqua.com/auth/oauth2/token';
     const data = {
        'grant_type': 'authorization_code',
@@ -206,36 +225,31 @@ class Eloqua {
        'redirect_uri': redirect_uri
     };
 
-    const header = {
-      // 'Host': 'https://elqapi.lgcnswithyou.com',
-      // 'Content-Type': 'application/json',
-      // 'Accept':'*/*',
-      Authorization: "Basic " + Buffer.from(client_id + ':' + client_secret).toString('base64')
-    };
-
     try {
-      console.log('getAuthCodeGrant - 통신 시작! Authorization: ' + header.Authorization);
-      debugger;
       // token 통신
-      const response = await _axios.default.post(url, data, header);
-      
-      console.log('getAuthCodeGrant - response완료');
-      debugger;
+      const response = await _axios.default.post(url, data, { headers : 
+        {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json;charset=utf-8',
+          'User-Agent': 'axios/0.18.1',
+          'Content-Length': 234,
+          'Authorization' : "Basic" + " " + Buffer.from(client_id + ':' + client_secret).toString('base64')
+        }
+      });
       //FIXME : code에 따라 code만료, 토큰발행 성공 등의 상황 가정할 것
       if (response.status == 200) {
-        console.log('getAuthCodeGrant - response 200!!!!');
-        debugger;
-        _classPrivateFieldLooseBase(this, _oauth)[_oauth].access_token = response.data.access_token;
-        _classPrivateFieldLooseBase(this, _oauth)[_oauth].refresh_token = response.data.refresh_token;
-        await this.setHeaders('Authorization', 'Bearer ' + _classPrivateFieldLooseBase(this, access_token)[access_token]);
+        console.log(JSON.stringify(response.data));
+        _classPrivateFieldLooseBase(this, _access_token)[_access_token] = response.data.access_token;
+        _classPrivateFieldLooseBase(this, _token_type)[_token_type] = response.data.token_type;
+        _classPrivateFieldLooseBase(this, _expires_in)[_expires_in] = response.data.expires_in;
+        _classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token] = response.data.refresh_token;
+        await this.setHeaders('Authorization', _classPrivateFieldLooseBase(this, _token_type)[_token_type] + ' ' + _classPrivateFieldLooseBase(this, _access_token)[_access_token]);
       }
-
     } catch (error) {
-      console.log('getAuthCodeGrant - 에러');
-      console.log(error);
-      // await this._throwError(error, 'https://login.eloqua.com/auth/oauth2/token');
+      await this._throwError(error, 'https://login.eloqua.com/auth/oauth2/token');
     }
   }
+
 
   setHeaders(name, value) {
     if (!this.axiosOptions.headers) {
@@ -281,6 +295,7 @@ class Eloqua {
   }
 
   async getAuth() {
+    console.log('인증과정 시작!!!!!');
     log('Getting Auth');
 
     if (!this.axiosOptions.auth && (!this.axiosOptions.headers || !this.axiosOptions.headers.Authorization)) {
@@ -303,13 +318,51 @@ class Eloqua {
           password: _classPrivateFieldLooseBase(this, _password)[_password]
         };
       } else if (_classPrivateFieldLooseBase(this, _code)[_code] && _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri] && _classPrivateFieldLooseBase(this, _client_id)[_client_id] && _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]) {
-      log('Getting Authorization code grant');
+        log('Getting Authorization code grant');
+        console.log('인증과정 - getAuthCodeGrant');
         await this.getAuthCodeGrant(_classPrivateFieldLooseBase(this, _code)[_code], _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri], _classPrivateFieldLooseBase(this, _client_id)[_client_id], _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]);
       } else {
         log('Auth Error');
       }
     } else {
+      // if (_classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token], _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri]) {
+      //   console.log('인증과정 - getAuthRefreshToken');
+      //   await this.getAuthRefreshToken(_classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token], _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri],_classPrivateFieldLooseBase(this, _client_id)[_client_id], _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]);
+      // }
       log('Auth Found');
+    }
+  }
+
+  async refreshToken() {
+    const url = 'https://login.eloqua.com/auth/oauth2/token';
+    var data = {
+      'grant_type' : "refresh_token", 
+      'refresh_token' : _classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token],
+      'scope' : 'full', 
+      'redirect_uri' : _classPrivateFieldLooseBase(this, _redirect_uri)[_redirect_uri]
+    }
+    console.log('oAuth refresh data : ' + JSON.stringify(data));
+  
+    try {
+      const response = await _axios.default.post(url, data, { headers: 
+        {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json;charset=utf-8',
+          'User-Agent': 'axios/0.18.1',
+          'Content-Length': 234,
+          'Authorization' : "Basic" + " " + Buffer.from(_classPrivateFieldLooseBase(this, _client_id)[_client_id] + ':' + _classPrivateFieldLooseBase(this, _client_secret)[_client_secret]).toString('base64')
+        }
+      });
+      console.log('refresh - response받아옴');
+      console.log(JSON.stringify(response.data));
+      _classPrivateFieldLooseBase(this, _access_token)[_access_token] = response.data.access_token;
+      _classPrivateFieldLooseBase(this, _token_type)[_token_type] = response.data.token_type;
+      _classPrivateFieldLooseBase(this, _expires_in)[_expires_in] = response.data.expires_in;
+      _classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token] = response.data.refresh_token;
+  
+      await this.setHeaders('Authorization', _classPrivateFieldLooseBase(this, _token_type)[_token_type] + ' ' + _classPrivateFieldLooseBase(this, _access_token)[_access_token]);
+    } catch (error) {
+      await this._throwError(error, 'https://login.eloqua.com/auth/oauth2/token');
     }
   }
 
@@ -330,7 +383,7 @@ class Eloqua {
     uri,
     qs,
     method = 'get',
-	headers ,
+	  headers ,
     data,
     options = {}
   }, cb) {
@@ -351,11 +404,19 @@ class Eloqua {
     requestOptions.method = method;
     this.apiCalls += 1;
     log(`${requestOptions.method} request to ${requestOptions.baseURL}${requestOptions.url}`);
-	if(headers) requestOptions.headers = headers;
+
+    if(headers) requestOptions.headers = headers;
+    console.log('헤더 세팅');
+    console.log(requestOptions.headers);
+
     const requestPromise = _classPrivateFieldLooseBase(this, _request)[_request](requestOptions).catch(callbackErrorOrThrow(cb, requestOptions.url));
+    console.log('리퀘스트 설정 - requestPromise');
+    console.log(requestPromise);
 
     if (cb) {
       requestPromise.then(response => {
+        console.log('리퀘스트 결과 받아옴 - response');
+        console.log(JSON.stringify(response));
         if (response && response.data && Object.keys(response.data).length > 0) {
           cb(null, response.data, response);
         } else if (response && response.status && response.status < 300) {
@@ -365,6 +426,9 @@ class Eloqua {
         }
       });
     }
+
+    console.log('리퀘스트 설정 - cb');
+    console.log(cb);
 
     return requestPromise;
   }
@@ -400,6 +464,16 @@ var _redirect_uri = _classPrivateFieldLooseKey("redirect_uri");
 var _client_id = _classPrivateFieldLooseKey("client_id");
 
 var _client_secret = _classPrivateFieldLooseKey("client_secret");
+
+// oauth==========
+var _access_token = _classPrivateFieldLooseKey("access_token");
+
+var _token_type = _classPrivateFieldLooseKey("token_type");
+
+var _expires_in = _classPrivateFieldLooseKey("expires_in");
+
+var _refresh_token = _classPrivateFieldLooseKey("refresh_token");
+// oauth==========
 
 function callbackErrorOrThrow(cb, path) {
   return function handler(object) {
@@ -443,5 +517,5 @@ function callbackErrorOrThrow(cb, path) {
   };
 }
 
-module.exports = exports.default;
+module.exports = exports.default
 //# sourceMappingURL=Eloqua.js.map
