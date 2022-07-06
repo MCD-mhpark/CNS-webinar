@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var methodOverride = require('method-override');
 var EloquaApi = require('./public/modules/eloqua-sdk');
-// var Eloqua = require('./public/modules/eloqua-sdk/dist/Eloqua.js');
 var moment = require('moment');
 const bodyParser = require('body-parser');
 require('console-stamp')(console, {
@@ -24,12 +23,11 @@ var fs = require('fs');
 const schedule = require('node-schedule-tz');
 var schedule_webinar_Jobs;
 
-// basic 인증 테스트용
-// 회사명 : LGCNS
+// basic Auth
 // var cns_eloqua_config = userInfo;
 // global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
-// oAuth인증 테스트용
+// oAuth Auth => 배포 이후 token 발행 과정 필요
 var cns_eloqua_config = apiInfo;
 global.cns_eloqua = {};
 
@@ -41,16 +39,15 @@ const { url } = require('inspector');
 var app = express();
 
 app.get('/oauth', function(req, res, next) {
+
+    console.log('oAuth 토큰 발행');
+
+    //이하 임의 1회 통신하여 oAuth 토큰 발행 확인
 	var code = req.query.code;
 	cns_eloqua_config['code'] = code;
 	global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
-	var searchString = "?name='Withyou_알림이메일수신목록'";
-
-    var queryString = {
-        depth: req.query.depth ? req.query.depth : 'minimal', 
-        search: searchString
-    }
+    var queryString = { depth: req.query.depth ? req.query.depth : 'minimal', search: "?name='Withyou_알림이메일수신목록'" }
 
     cns_eloqua.assets.customObjects.get(queryString).then((result) => {
         console.log(result.data);
@@ -101,14 +98,9 @@ app.use(function(err, req, res, next) {
 
 // token refresh scheduler
 function schedule_oAuth_Token_Refresh() {
-    console.log('oAuth token refresh');
-    // let uniqe_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
-    // FIXME : 테스트용 분단위 스케쥴러. 배포시 시간단위로 변경할것 (아래 스케쥴도 6시간 단위로 변경)
-    let unique_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH:mm:ss');
+    let uniqe_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
 	let second = "0";
-	// let minutes = "*/1";
     let minutes = "0";
-	// let hours = "*";
 	let hours = "*/6";
 	let dayofmonth = "*";
 	let month = "*";
@@ -116,7 +108,6 @@ function schedule_oAuth_Token_Refresh() {
 	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
     
     schedule_webinar_Jobs = schedule.scheduleJob(unique_jobs_name, schedate, "Asia/Seoul", async function() {
-        console.log('oAuth refresh 스케쥴러 실행');
         await cns_eloqua.refreshToken();
     });
 }
