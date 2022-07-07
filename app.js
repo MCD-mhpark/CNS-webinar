@@ -15,15 +15,21 @@ require('console-stamp')(console, {
 var os = require('os');
 const expressValidator = require('express-validator');
 const userInfo = require('./config/userinfo.json');
+const apiInfo = require('./config/apiInfo.json');
 
 var FolderPath = '../';
 var fs = require('fs');
 
+const schedule = require('node-schedule-tz');
+var schedule_webinar_Jobs;
 
-// 회사명 : LGCNS
-var cns_eloqua_config = userInfo;
+// basic Auth
+// var cns_eloqua_config = userInfo;
+// global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
-global.cns_eloqua = new EloquaApi(cns_eloqua_config);
+// oAuth Auth => 배포 이후 token 발행 과정 필요
+var cns_eloqua_config = apiInfo;
+global.cns_eloqua = {};
 
 var cns_assets = require('./routes/assets');
 var cns_webinar_preregist = require('./routes/webinar/preregist');
@@ -31,6 +37,26 @@ var cns_webinar_preregist = require('./routes/webinar/preregist');
 const { url } = require('inspector');
 
 var app = express();
+
+app.get('/oauth', function(req, res, next) {
+
+    console.log('oAuth 토큰 발행');
+
+    //이하 임의 1회 통신하여 oAuth 토큰 발행 확인
+	var code = req.query.code;
+	cns_eloqua_config['code'] = code;
+	global.cns_eloqua = new EloquaApi(cns_eloqua_config);
+
+    var queryString = { depth: req.query.depth ? req.query.depth : 'minimal', search: "?name='Withyou_알림이메일수신목록'" }
+
+    cns_eloqua.assets.customObjects.get(queryString).then((result) => {
+        console.log(result.data);
+        res.json(result.data);
+    }).catch((err) => {
+        console.error(err.message);
+        res.json(err);
+    });
+});
 
 var module_files = path.join(process.cwd(), '../modules');
 app.use(methodOverride('_method'));
@@ -69,5 +95,23 @@ app.use(function(err, req, res, next) {
 });
 
 // app.use(expressValidator());
+
+// token refresh scheduler
+function schedule_oAuth_Token_Refresh() {
+    let unique_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
+	let second = "0";
+    let minutes = "0";
+	let hours = "*/6";
+	let dayofmonth = "*";
+	let month = "*";
+	let weekindex = "*";
+	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+    
+    schedule_webinar_Jobs = schedule.scheduleJob(unique_jobs_name, schedate, "Asia/Seoul", async function() {
+        await cns_eloqua.refreshToken();
+    });
+}
+
+schedule_oAuth_Token_Refresh();
 
 module.exports = app;
