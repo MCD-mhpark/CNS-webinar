@@ -106,3 +106,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Docker setting file
+Dockerfile
+docker*
+
+# nginx setting
+nginx
+
+# ssl certigicate
+ssl
