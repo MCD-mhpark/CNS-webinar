@@ -755,15 +755,12 @@ async function sendMail (title, content) {
         };
     
         // 메일 송신
-        // FIXME : 테스트용으로 메일 전송 주석처리. 해제 후 push할것
-        // mailer.sendGmail(emailParam);
+        mailer.sendGmail(emailParam);
         
     }).catch((err) => {
         logger.error('에러 알림 수신자 검색 에러 : ' + err.message);
 
-        // FIXME : 테스트용으로 메일 전송 주석처리. 해제 후 push할것
-        // var tempEmailList = ['mhpark@goldenplanet.co.kr','jjjeon@goldenplanet.co.kr'];
-        var tempEmailList = ['mhpark@goldenplanet.co.kr'];
+        var tempEmailList = ['mhpark@goldenplanet.co.kr','jjjeon@goldenplanet.co.kr'];
 
         let emailParam = {
             toEmail : tempEmailList, 
