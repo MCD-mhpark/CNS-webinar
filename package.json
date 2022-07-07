@@ -28,6 +28,7 @@
     "moment-timezone": "^0.5.34",
     "morgan": "^1.10.0",
     "mz": "^2.7.0",
+    "node-schedule-tz": "^1.2.1-4",
     "nodemailer": "^6.7.5",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
