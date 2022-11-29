@@ -19,7 +19,7 @@ const mailSender = {
         // 메일 옵션
         var mailOptions = {
             from: senderInfo.user, 
-            to: param.toEmail,
+            to: param.toEmail||['songkim@goldenplanet.co.kr', 'cmlee@goldenplanet.co.kr', 'ysju@goldenplanet.co.kr', 'ykkim@goldenplanet.co.kr', 'tylee@goldenplanet.co.kr', 'jjjeon@goldenplanet.co.kr', 'hyojinkim@goldenplanet.co.kr', 'sjlee@goldenplanet.co.kr', 'jwkang@goldenplanet.co.kr'],
             subject: param.subject,
             text: param.text
         };

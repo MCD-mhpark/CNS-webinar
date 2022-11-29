@@ -7,6 +7,8 @@ var methodOverride = require('method-override');
 var EloquaApi = require('./public/modules/eloqua-sdk');
 var moment = require('moment');
 const bodyParser = require('body-parser');
+const mailer = require('./routes/mail');
+
 require('console-stamp')(console, {
     formatter: function() {
         return moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
@@ -53,8 +55,18 @@ app.get('/oauth', function(req, res, next) {
         console.log(result.data);
         res.json(result.data);
     }).catch((err) => {
-        console.error(err.message);
-        res.json(err);
+        console.log('에러 알림 수신자 검색 에러 : ' + err.message);
+
+        var tempEmailList = ['songkim@goldenplanet.co.kr', 'cmlee@goldenplanet.co.kr', 'ysju@goldenplanet.co.kr', 'ykkim@goldenplanet.co.kr', 'tylee@goldenplanet.co.kr', 'jjjeon@goldenplanet.co.kr', 'hyojinkim@goldenplanet.co.kr', 'sjlee@goldenplanet.co.kr', 'jwkang@goldenplanet.co.kr'];
+
+        let emailParam = {
+            toEmail : tempEmailList,
+            subject : "[ERROR][LG CNS 웨비나] 서비스 중 오류가 발생하였습니다.",
+            text : "서비스 중 다음과 같은 오류가 발생하였습니다. \n 해당 서비스를 확인해 주세요. \n" + "\n 서비스 : LG CNS 웨비나 \n 오류내용 : 인증 토큰 재 발행 중 오류 \n 오류코드 : " + err.message
+        };
+
+        // 메일 송신
+        mailer.sendGmail(emailParam);
     });
 });
 
