@@ -103,7 +103,7 @@ app.use(function(err, req, res, next) {
 function schedule_oAuth_Token_Refresh() {
     let unique_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
 	let second = "0";
-    let minutes = "0";
+        let minutes = "0";
 	let hours = "*/6";
 	let dayofmonth = "*";
 	let month = "*";

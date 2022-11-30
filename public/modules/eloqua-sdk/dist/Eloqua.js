@@ -21,7 +21,7 @@ var _data = _interopRequireDefault(require("./data"));
 
 var _system = _interopRequireDefault(require("./system"));
 
-var mailer = _interopRequireDefault(require("../../../../routes/mail"));
+var _mailer = _interopRequireDefault(require("../../../../routes/mail"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -351,7 +351,6 @@ class Eloqua {
       _classPrivateFieldLooseBase(this, _token_type)[_token_type] = response.data.token_type;
       _classPrivateFieldLooseBase(this, _expires_in)[_expires_in] = response.data.expires_in;
       _classPrivateFieldLooseBase(this, _refresh_token)[_refresh_token] = response.data.refresh_token;
-  
       await this.setHeaders('Authorization', _classPrivateFieldLooseBase(this, _token_type)[_token_type] + ' ' + _classPrivateFieldLooseBase(this, _access_token)[_access_token]);
     } catch(err) {
         console.log('에러 알림 수신자 검색 에러 : ' + err.message);
@@ -365,7 +364,7 @@ class Eloqua {
         };
 
         // 메일 송신
-        mailer.sendGmail(emailParam);
+        _mailer.default.sendGmail(emailParam);
         try{
           await this._throwError(err, 'https://login.eloqua.com/auth/oauth2/token');
         } catch (_error) {
