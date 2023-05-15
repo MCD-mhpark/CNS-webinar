@@ -574,38 +574,6 @@ router.post('/logout',
 });
 
 
-/**
- * @api {post} /pre/ondemand 다시보기 시청기록
- * @apiName ondemand
- * @apiGroup webinar
- * 
- * @apiBody {String} uid 유저 고유 id
- * @apiBody {String} webinarName 웨비나명
- * 
- * @apiSuccess {String} status 전송 결과 
- * 
- * @apiSuccessExample 다시보기 시청 기록 성공
- *  {
- *     "status": "1"
- *  }
- * 
- * @apiErrorExample 다시보기 시청 기록 실패
- * {
- *     "status": "0"
- * }
- * 
- * @apiErrorExample Validation Error
- * {
- *     "errors": [
- *         {
- *             "value": "",
- *             "msg": "Invalid value",
- *             "param": "uid",
- *             "location": "body"
- *         }
- *     ]
- * }
- */
 router.post('/ondemand',
         [   
             body('uid').not().isEmpty(), 
