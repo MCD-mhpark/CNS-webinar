@@ -508,38 +508,6 @@ function mappedForm(data) {
     return resultform;
 }
 
-/** 
- * @api {post} /pre/logout 로그아웃
- * @apiName logout
- * @apiGroup webinar
- * 
- * @apiBody {String} uid 유저 고유 id
- * 
- * @apiSuccess {String} status 전송 결과 
- * 
- * @apiSuccessExample 로그아웃 기록 성공
- *  {
- *     "status": "1"
- *  }
- * 
- * @apiErrorExample 로그아웃 기록 실패
- * {
- *     "status": "0"
- * }
- * 
- * @apiErrorExample Validation Error
- * {
- *     "errors": [
- *         {
- *             "value": "",
- *             "msg": "Invalid value",
- *             "param": "uid",
- *             "location": "body"
- *         }
- *     ]
- * }
- * 
-*/
 router.post('/logout', 
         [
             body('uid').not().isEmpty()
