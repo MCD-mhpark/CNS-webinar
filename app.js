@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 
 
 require('console-stamp')(console, {
-    formatter: function() {
+    formatter: function () {
         return moment().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss');
     }
 });
@@ -40,14 +40,14 @@ const { url } = require('inspector');
 
 var app = express();
 
-app.get('/oauth', function(req, res, next) {
+app.get('/oauth', function (req, res, next) {
 
     console.log('oAuth 토큰 발행');
 
     //이하 임의 1회 통신하여 oAuth 토큰 발행 확인
-	var code = req.query.code;
-	cns_eloqua_config['code'] = code;
-	global.cns_eloqua = new EloquaApi(cns_eloqua_config);
+    var code = req.query.code;
+    cns_eloqua_config['code'] = code;
+    global.cns_eloqua = new EloquaApi(cns_eloqua_config);
 
     var queryString = { depth: req.query.depth ? req.query.depth : 'minimal', search: "?name='Withyou_알림이메일수신목록'" }
 
@@ -66,9 +66,9 @@ app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/modules', express.static(module_files));
 
-app.use(bodyParser.json({limit: '50mb'})); //body 의 크기 설정
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true})); //url의 크기 설정
- 
+app.use(bodyParser.json({ limit: '50mb' })); //body 의 크기 설정
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true })); //url의 크기 설정
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -82,35 +82,35 @@ app.use('/apidoc', express.static(__dirname + '/apidoc'));
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-	next(createError(404));
+app.use(function (req, res, next) {
+    next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-	// render the error page
-	res.status(err.status || 500);
-	res.json({ error: err })
+    // render the error page
+    res.status(err.status || 500);
+    res.json({ error: err })
 });
 
 // app.use(expressValidator());
 
 // token refresh scheduler
 function schedule_oAuth_Token_Refresh() {
-    let unique_jobs_name = "WITHYOU_WEBINAR" +  moment().format('YYYYMMDD_HH');
-	let second = "0";
-        let minutes = "0";
-	let hours = "*/6";
-	let dayofmonth = "*";
-	let month = "*";
-	let weekindex = "*";
-	var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
-    
-    schedule_webinar_Jobs = schedule.scheduleJob(unique_jobs_name, schedate, "Asia/Seoul", async function() {
+    let unique_jobs_name = "WITHYOU_WEBINAR" + moment().format('YYYYMMDD_HH');
+    let second = "0";
+    let minutes = "0";
+    let hours = "*/6";
+    let dayofmonth = "*";
+    let month = "*";
+    let weekindex = "*";
+    var schedate = second + ' ' + minutes + ' ' + hours + ' ' + dayofmonth + ' ' + month + ' ' + weekindex;
+
+    schedule_webinar_Jobs = schedule.scheduleJob(unique_jobs_name, schedate, "Asia/Seoul", async function () {
         await cns_eloqua.refreshToken();
     });
 }

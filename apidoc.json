@@ -1,7 +1,7 @@
 {
-    "name": "LG CNS webinar API",
-    "version": "1.1.0",
-    "description": "LG CNS webinar - Eloqua 연동 API",
-    "title": "webinar",
-    "url" : "https://elqapi.lgcnswithyou.com"
+  "name": "LG CNS webinar API",
+  "version": "1.1.1",
+  "description": "LG CNS webinar - Eloqua 연동 API",
+  "title": "webinar",
+  "url": "https://elqapi.lgcnswithyou.com"
 }
