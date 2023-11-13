@@ -22,11 +22,13 @@ const mailer = require('../mail');
  * 
  * @apiSuccess {String} status 전송 결과 
  * @apiSuccess {String} uid 메시지 고유 번호
+ * @apiSuccess {String} guid 뉴모사 GUID
  * 
  * @apiSuccessExample 로그인 성공
  * {
  *     "uid": "DLGC2000000093632",
- *     "status": "1"
+ *     "status": "1",
+ *     "guid" : "981d7a4a-37cf-46ea-b21a-49282b5e7658"
  * }
  * 
  * @apiErrorExample 로그인 실패
@@ -113,10 +115,17 @@ router.post('/login',
                 //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== end
 
                 //3. 다시보기 로그인 성공시 uid, status 전달 ======== start
+                /** 
+                 * 2023.11.08
+                 * 
+                 * 로그인 성공 시, guid 값 추가전달 코드 구현
+                 * 
+                */
                 else {
                     logger.info('/login 로그인 성공(Ondemand) : ' + loginData.uniqueCode);
                     resultForm.uid = loginData.uniqueCode;
                     resultForm.status = '1';
+                    resultForm.guid = loginData.fieldValues.filter((it) => it.id === '2809')[0].value;
                 }
                 //3. 다시보기 로그인 성공시 uid, status 전달 ======== end
 
@@ -159,6 +168,7 @@ router.post('/login',
  * @apiBody {String} que1 질문1
  * @apiBody {String} que2 질문2
  * @apiBody {String} que3 질문3
+ * @apiBody {String} que4 질문4
  * @apiBody {String} guid 뉴모사GUID
  * 
  * @apiSuccess {String} status 전송 결과 
@@ -482,6 +492,11 @@ function mappedForm(data) {
             "id": "6123",
             "name": "3. 본 웨비나에 기대하는 점이나 사전 질문 있으면 남겨주세요.",
             "value": data.que3
+        }, {
+            "type": "FieldValue",
+            "id": "10658",
+            "name": "4. (오프라인) 어떤 트랙에 참석하시나요?",
+            "value": data.que4
         }, {
             "type": "FieldValue",
             "id": "6800",
