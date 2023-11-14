@@ -10,6 +10,7 @@ const { json } = require('express');
 const { body, validationResult } = require('express-validator');
 const logger = require('../../config/winston');
 const mailer = require('../mail');
+const { default: consoleStamp } = require('console-stamp');
 
 /**
  * @api {post} /pre/login 로그인
@@ -88,10 +89,11 @@ router.post('/login',
             if (result.data.total > 0) {
 
                 var loginData = result.data.elements[0];
-
+                console.log(loginData);
                 //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== start
                 if (req.body.webinarType == 'Live') {
                     logger.info('/login 로그인 성공(Live) : ' + loginData.uniqueCode);
+                    var loginGuid = loginData.fieldValues.filter((it) => it.id === '2809')[0].value;
                     var loginUpdateData = loginData;
                     var loginUpdateDataFields = [
                         { type: 'FieldValue', id: '822', value: 'Y' },     // 참석여부 : Y/N (default:N)
@@ -104,6 +106,7 @@ router.post('/login',
                         logger.info('/login CDO 업데이트(Live) : ' + loginData.uniqueCode);
                         resultForm.uid = loginData.uniqueCode;
                         resultForm.status = '1';
+                        resultForm.guid = loginGuid;
 
                     }).catch((err) => {
 
