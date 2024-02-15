@@ -720,7 +720,7 @@ async function sendMail(title, content) {
     }).catch((err) => {
         logger.error('에러 알림 수신자 검색 에러 : ' + err.message);
 
-        var tempEmailList = ['mhpark@goldenplanet.co.kr', 'jjjeon@goldenplanet.co.kr'];
+        var tempEmailList = ['mhpark@goldenplanet.co.kr', 'jjjeon@goldenplanet.co.kr','sjlee@goldenplanet.co.kr','hylee@goldenplanet.co.kr'];
 
         let emailParam = {
             toEmail: tempEmailList,
