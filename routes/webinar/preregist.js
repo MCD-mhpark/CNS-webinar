@@ -163,15 +163,25 @@ router.post('/login',
  * @apiBody {String} company=Required 회사명
  * @apiBody {String} title 직책
  * @apiBody {String} hphone=Required 핸드폰
- * @apiBody {String} recom 추천인
- * @apiBody {String} agree1=Required 개인정보 수집 이용동의 (필수) : Y/N
- * @apiBody {String} agree2 개인정보 수집 이용동의 (선택) : Y/N
- * @apiBody {String} agree3 마케팅 정보 수신동의 (선택) : Y/N
+ * @apiBody {String} env 서버 유형 : dev/prod
+ * @apiBody {String} attendType 참여방법 : on/off
+ * @apiBody {String} PP_required=Required 개인정보 수집 이용동의 (필수) : Y/N
+ * @apiBody {String} PP_optional 개인정보 수집 이용동의 (선택) : Y/N
+ * @apiBody {String} optin1 마케팅 정보 수신동의 (선택) : Y/N
+ * @apiBody {String} to3rd 제3자정보 제공동의 : Y/N
+ * @apiBody {String} sensitive 민감정보 제공동의 : Y/N
+ * @apiBody {String} track 선택트랙 : (ex) 트랙1;트랙2
  * @apiBody {String} que1 질문1
  * @apiBody {String} que2 질문2
  * @apiBody {String} que3 질문3
- * @apiBody {String} que4 질문4
  * @apiBody {String} guid 뉴모사GUID
+ * @apiBody {String} bizno 사업자등록번호
+ * @apiBody {String} etc1 추후사용
+ * @apiBody {String} etc2 추후사용
+ * @apiBody {String} etc3 추후사용
+ * @apiBody {String} etc4 추후사용
+ * @apiBody {String} etc5 추후사용
+ * @apiBody {String} subject 행사 주제 : (ex) data;cloud
  *
  * @apiSuccess {String} status 전송 결과
  *
