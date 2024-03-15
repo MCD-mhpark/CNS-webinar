@@ -16,27 +16,27 @@ const { default: consoleStamp } = require('console-stamp');
  * @api {post} /pre/login 로그인
  * @apiName Login
  * @apiGroup webinar
- * 
+ *
  * @apiBody {String} webinarName=Required 웨비나명
  * @apiBody {String} webinarType=Required 웨비나종류 : Live / Ondemand
  * @apiBody {String} hphone=Required 휴대폰번호
- * 
- * @apiSuccess {String} status 전송 결과 
+ *
+ * @apiSuccess {String} status 전송 결과
  * @apiSuccess {String} uid 메시지 고유 번호
  * @apiSuccess {String} guid 뉴모사 GUID
- * 
+ *
  * @apiSuccessExample 로그인 성공
  * {
  *     "uid": "DLGC2000000093632",
  *     "status": "1",
  *     "guid" : "981d7a4a-37cf-46ea-b21a-49282b5e7658"
  * }
- * 
+ *
  * @apiErrorExample 로그인 실패
  *  {
  *      "status": "0"
  *  }
- * 
+ *
  * @apiErrorExample Validation Error
  * {
  *     "errors": [
@@ -89,9 +89,8 @@ router.post('/login',
             if (result.data.total > 0) {
 
                 var loginData = result.data.elements[0];
-                console.log(loginData);
                 //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== start
-                if (req.body.webinarType == 'Live') {
+                if (req.body.webinarType === 'Live') {
                     logger.info('/login 로그인 성공(Live) : ' + loginData.uniqueCode);
                     var loginGuid = loginData.fieldValues.filter((it) => it.id === '2809')[0].value;
                     var loginUpdateData = loginData;
@@ -118,11 +117,11 @@ router.post('/login',
                 //2. 라이브 로그인 성공시 해당 CDO의 참석여부, 로그인시간 필드를 업데이트 ======== end
 
                 //3. 다시보기 로그인 성공시 uid, status 전달 ======== start
-                /** 
+                /**
                  * 2023.11.08
-                 * 
+                 *
                  * 로그인 성공 시, guid 값 추가전달 코드 구현
-                 * 
+                 *
                 */
                 else {
                     logger.info('/login 로그인 성공(Ondemand) : ' + loginData.uniqueCode);
@@ -154,7 +153,7 @@ router.post('/login',
  * @api {post} /pre/preregist 사전등록
  * @apiName Preregist
  * @apiGroup webinar
- * 
+ *
  * @apiBody {String} webinarName=Required 웨비나 구분값
  * @apiBody {String} webinarType=Required 웨비나종류 : Live / Ondemand
  * @apiBody {String} ibch 유입경로
@@ -173,24 +172,24 @@ router.post('/login',
  * @apiBody {String} que3 질문3
  * @apiBody {String} que4 질문4
  * @apiBody {String} guid 뉴모사GUID
- * 
- * @apiSuccess {String} status 전송 결과 
- * 
+ *
+ * @apiSuccess {String} status 전송 결과
+ *
  * @apiSuccessExample 사전등록 성공
  *  {
  *     "status": "1"
  *  }
- * 
+ *
  * @apiErrorExample 중복 데이터 입력
  * {
  *     "status": "-1"
  * }
- * 
+ *
  * @apiErrorExample 레코드 생성 실패
  * {
  *     "status": "0"
  * }
- * 
+ *
  * @apiErrorExample Validation Error
  * {
  *     "errors": [
@@ -202,40 +201,48 @@ router.post('/login',
  *         }
  *     ]
  * }
- * 
+ *
  */
 router.post('/preregist',
     [
-        body('webinarName').not().isEmpty(),
+        body('webinarName').not().isEmpty(),//필수
         body('webinarName').isLength({ max: 50 }),
 
         //body('ibch').not().isEmpty(),
         body('ibch').isLength({ max: 50 }),
 
-        body('lastname').not().isEmpty(),
-        body('lastname').isLength({ max: 50 }),
+        body('lastName').not().isEmpty(), //필수
+        body('lastName').isLength({ max: 50 }),
 
-        body('name').not().isEmpty(),
-        body('name').isLength({ max: 50 }),
+        body('firstName').not().isEmpty(), //필수
+        body('firstName').isLength({ max: 50 }),
 
-        body('email').not().isEmpty(),
-        body('email').isEmail(),
+        body('emailAddress').not().isEmpty(), //필수
+        body('emailAddress').isEmail(),
 
-        body('company').not().isEmpty(),
+        body('company').not().isEmpty(), //필수
         body('company').isLength({ max: 50 }),
 
         body('title').isLength({ max: 50 }),
 
-        body('hphone').not().isEmpty(),
+        body('hphone').not().isEmpty(), //필수
         body('hphone').isLength({ max: 50 }),
         body('hphone').isMobilePhone(['ko-KR']),
 
-        body('recom').isLength({ max: 50 }),
+        //24.03.12 교체 및 수정
+        body('subject').isLength({ max: 50 }),
+        body('env').isIn(['dev', 'prod']),
 
-        body('agree1').not().isEmpty(),
-        body('agree1').isIn(['Y', 'N']),
-        body('agree2').isIn(['Y', 'N']),
-        body('agree3').isIn(['Y', 'N']),
+        body('PP_required').not().isEmpty(),
+        body('PP_required').isIn(['Y', 'N']),
+        //필수아님
+        // body('PP_optional').isIn(['Y', 'N']),
+        // body('optin1').isIn(['Y', 'N']),
+        // body('to3rd').isIn(['Y', 'N']),
+        // body('sensitive').isIn(['Y', 'N']),
+
+        body('attendType').isIn(['on', 'off']),
+        body('subject').isLength({ max: 50 }),
 
         body('webinarType').not().isEmpty(),
         body('webinarType').isIn(['Live', 'Ondemand'])
@@ -245,7 +252,7 @@ router.post('/preregist',
         //Validation check
         const errors = validationResult(req);
         //Live 의 경우에만 que1,2,3 필수 => que1,2,3 은 항상 필수가 아니도록 수정 (2022-03-10)
-        // if (req.body.webinarType == 'Live') { 
+        // if (req.body.webinarType == 'Live') {
         //     if(!req.body.hasOwnProperty('que1') || req.body.que1 == ""){
         //         errors.errors.push({
         //             "value": "",
@@ -312,7 +319,9 @@ router.post('/preregist',
 
         // 2. 폼 데이터 제출 ===== start
         const formID = 383;
+        // const formID = 838;
         var insertForm = mappedForm(req.body);
+
 
         await cns_eloqua.data.formData.create(formID, insertForm).then(async (result) => {
 
@@ -321,15 +330,20 @@ router.post('/preregist',
         }).catch((err) => {
             //통신에러
             logger.error('/preregist form 데이터 제출 실패 : ' + err.message);
-            sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', err.message);
+            logger.error(err);
+            // sendMail('[웨모사 Alert] preregist form 데이터 제출 실패', err.message);
             resultForm.status = "-2";
         })
 
-        // if (resultForm.hasOwnProperty('status')) {
-        logger.info('/preregist form 데이터 제출 완료(' + req.body.hphone + ')');
-        if (resultForm.status == "-2") return res.json(resultForm);
-        else if (resultForm.status == "1") res.json(resultForm);
-        // }
+        if (resultForm.hasOwnProperty('status')) {
+            if (resultForm.status === "-2") {
+                return res.json(resultForm);
+            }
+            else if (resultForm.status === "1") {
+                logger.info('/preregist form 데이터 제출 완료(' + req.body.hphone + ')');
+                res.json(resultForm)
+            }
+        }
         // 2. 폼 데이터 제출 ===== end
 
         // 3. 제출 데이터 확인 ===== start
@@ -419,115 +433,202 @@ router.post('/preregist',
     });
 
 function mappedForm(data) {
-
     var resultform = {};
 
     resultform.type = "FormData";
 
-    resultform.fieldValues = [
+    resultform.fieldValues =   [
         {
-            "type": "FieldValue",
-            "id": "5820",
-            "name": "웨비나명",
-            "value": data.webinarName
-        }, {
-            "type": "FieldValue",
-            "id": "5811",
-            "name": "Last Name",
-            "value": data.lastname
-        }, {
-            "type": "FieldValue",
-            "id": "5812",
-            "name": "First Name",
-            "value": data.name
-        }, {
-            "type": "FieldValue",
-            "id": "5810",
-            "name": "Email Address",
-            "value": data.email
-        }, {
-            "type": "FieldValue",
-            "id": "5813",
-            "name": "Company",
-            "value": data.company
-        }, {
-            "type": "FieldValue",
-            "id": "5815",
-            "name": "Mobile Phone",
-            "value": data.hphone
-        }, {
-            "type": "FieldValue",
-            "id": "5821",
-            "name": "개인정보 수집•이용 동의 (필수)",
-            "value": data.agree1
-        }, {
-            "type": "FieldValue",
-            "id": "5822",
-            "name": "개인정보 수집•이용 동의 (선택)",
-            "value": data.agree2
-        }, {
-            "type": "FieldValue",
-            "id": "5823",
-            "name": " 마케팅 정보 수신동의 (선택)",
-            "value": data.agree3
-        }, {
-            "type": "FieldValue",
-            "id": "5817",
-            "name": "ibch",
-            "value": data.ibch
-        }, {
-            "type": "FieldValue",
-            "id": "5826",
-            "name": "폼 제출시간",
-            "value": moment().tz('Canada/Eastern').format("YYYY-MM-DD HH:mm:ss")
-        }, {
-            "type": "FieldValue",
-            "id": "6121",
-            "name": "1. 본 웨비나에 참석하시게 된 주요 이유는 무엇인가요?",
-            "value": data.que1
-        }, {
-            "type": "FieldValue",
-            "id": "6122",
-            "name": "2. 본 웨비나에서 관심있는 세션은 무엇인가요? (중복선택 가능)",
-            "value": data.que2
-        }, {
-            "type": "FieldValue",
-            "id": "6123",
-            "name": "3. 본 웨비나에 기대하는 점이나 사전 질문 있으면 남겨주세요.",
-            "value": data.que3
-        }, {
-            "type": "FieldValue",
-            "id": "10658",
-            "name": "4. (오프라인) 어떤 트랙에 참석하시나요?",
-            "value": data.que4
-        }, {
-            "type": "FieldValue",
+            "type": "FormField",
             "id": "6800",
             "name": "webinarType",
             "value": data.webinarType
-        }, {
-            "type": "FieldValue",
+        },
+        {
+            "type": "FormField",
             "id": "10432",
             "name": "뉴모사GUID",
             "value": data.guid
-        }
-    ];
-
-    //선택 필드
-    if (data.agree2 == 'Y') {
-        resultform.fieldValues.push({
-            "type": "FieldValue",
+        },
+        {
+            "type": "FormField",
+            "id": "5820",
+            "name": "웨비나명",
+            "value": data.webinarName
+        },
+        {
+            "type": "FormField",
+            "id": "5810",
+            "name": "Email Address",
+            "value": data.emailAddress
+        },
+        {
+            "type": "FormField",
+            "id": "5811",
+            "name": "Last Name",
+            "value": data.lastName
+        },
+        {
+            "type": "FormField",
+            "id": "5812",
+            "name": "First Name",
+            "value": data.firstName
+        },
+        {
+            "type": "FormField",
+            "id": "5813",
+            "name": "Company",
+            "value": data.company
+        },
+        {
+            "type": "FormField",
+            "id": "12211",
+            "name": "BizNo",
+            "value": data.bizno
+        },
+        {
+            "type": "FormField",
             "id": "5824",
             "name": "Title",
             "value": data.title
-        });
-        resultform.fieldValues.push({
-            "type": "FieldValue",
+        },
+        {
+            "type": "FormField",
+            "id": "5815",
+            "name": "Mobile Phone",
+            "value": data.hphone
+        },
+        {
+            "type": "FormField",
             "id": "5816",
-            "name": "추천인",
-            "value": data.recom
-        });
-    }
+            "name": "evn",
+            "value": data.env
+        },
+        {
+            "type": "FormField",
+            "id": "12037",
+            "name": "Subject",
+            "value": data.subject
+        },
+        {
+            "type": "FormField",
+            "id": "5817",
+            "name": "ibch",
+            "value": data.ibch
+        },
+        {
+            "type": "FormField",
+            "id": "5826",
+            "name": "폼 제출시간",
+            "value": moment().tz('Canada/Eastern').format("YYYY-MM-DD HH:mm:ss")
+
+        },
+        {
+            "type": "FormField",
+            "id": "5821",
+            "name": "개인정보 수집•이용 동의 (필수)",
+            "value": data.PP_required
+        },
+        {
+            "type": "FormField",
+            "id": "5822",
+            "name": "개인정보 수집•이용 동의 (선택)",
+            "value": data.PP_optional
+        },
+        {
+            "type": "FormField",
+            "id": "5823",
+            "name": " 마케팅 정보 수신동의 (선택)",
+            "value": data.optin1
+        },
+        {
+            "type": "FormField",
+            "id": "12208",
+            "name": "제3자정보 제공동의 ",
+            "value": data.to3rd
+        },
+        {
+            "type": "FormField",
+            "id": "12209",
+            "name": "민감정보 제공동의 ",
+            "value": data.sensitive
+        },
+        {
+            "type": "FormField",
+            "id": "12038",
+            "name": "참여방법",
+            "value": data.attendType
+        },
+        {
+            "type": "FormField",
+            "id": "10658",
+            "name": "선택트랙",
+            "value": data.track
+        },
+        {
+            "type": "FormField",
+            "id": "12157",
+            "name": "설문1",
+            "value": data.que1
+        },
+        {
+            "type": "FormField",
+            "id": "6122",
+            "name": "설문2",
+            "value": data.que2
+        },
+        {
+            "type": "FormField",
+            "id": "6123",
+            "name": "설문3",
+            "value": data.que3
+        },
+        {
+            "type": "FormField",
+            "id": "12158",
+            "name": "etc1",
+            "value": data.etc1
+        },
+        {
+            "type": "FormField",
+            "id": "12159",
+            "name": "etc2",
+            "value": data.etc2
+        },
+        {
+            "type": "FormField",
+            "id": "12160",
+            "name": "etc3",
+            "value": data.etc3
+        },
+        {
+            "type": "FormField",
+            "id": "12161",
+            "name": "etc4",
+            "value": data.etc4
+        },
+        {
+            "type": "FormField",
+            "id": "12162",
+            "name": "etc5",
+            "value": data.etc5
+        },
+    ]
+
+
+
+    //선택 필드
+    // if (data.agree2 == 'Y') {
+    //     resultform.fieldValues.push({
+    //         "type": "FieldValue",
+    //         "id": "12058",
+    //         "name": "Title",
+    //         "value": data.title
+    //     });
+    //     //recom 있던 위치
+    // }
+
+
 
     return resultform;
 }
@@ -672,7 +773,7 @@ router.post('/ondemand',
 /*
     메일 전송 테스트용 메소드
     Withyou_알림이메일수신목록 CDO의 메일주소로 메일을 보낸다
-    
+
     title: 메일 제목
     content: 메일 내용
 */
