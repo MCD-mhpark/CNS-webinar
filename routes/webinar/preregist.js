@@ -251,7 +251,8 @@ router.post('/preregist',
         // body('to3rd').isIn(['Y', 'N']),
         // body('sensitive').isIn(['Y', 'N']),
 
-        body('attendType').isIn(['on', 'off']),
+        //body('attendType').isIn(['on', 'off']),
+        body('attendType').isIn(['on', 'off', '']),
         body('subject').isLength({ max: 50 }),
 
         body('webinarType').not().isEmpty(),
