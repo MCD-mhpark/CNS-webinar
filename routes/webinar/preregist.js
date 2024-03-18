@@ -157,9 +157,9 @@ router.post('/login',
  * @apiBody {String} webinarName=Required 웨비나 구분값
  * @apiBody {String} webinarType=Required 웨비나종류 : Live / Ondemand
  * @apiBody {String} ibch 유입경로
- * @apiBody {String} lastname=Required 성
- * @apiBody {String} name=Required 이름
- * @apiBody {String} email=Required 이메일
+ * @apiBody {String} lastName=Required 성
+ * @apiBody {String} firstName=Required 이름
+ * @apiBody {String} emailAddress=Required 이메일
  * @apiBody {String} company=Required 회사명
  * @apiBody {String} title 직책
  * @apiBody {String} hphone=Required 핸드폰
