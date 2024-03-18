@@ -241,7 +241,7 @@ router.post('/preregist',
 
         //24.03.12 교체 및 수정
         body('subject').isLength({ max: 50 }),
-        body('env').isIn(['dev', 'prod']),
+        body('env').isIn(['dev', 'prod', '']),
 
         body('PP_required').not().isEmpty(),
         body('PP_required').isIn(['Y', 'N']),
